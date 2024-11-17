@@ -1,0 +1,100 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background-color: #00897b;
+  color: white;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-signup, .btn-login {
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-signup {
+  background-color: #00c853;
+  border: none;
+  color: white;
+}
+
+.btn-login {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+.btn-signup:hover {
+  background-color: #00e676;
+}
+
+.btn-login:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: #0c564f; 
+  min-width: 110px;
+  z-index: 1;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  display: none; 
+  flex-direction: column;
+  border-radius: 0.5rem;
+}
+
+.dropdown-menu button {
+  background: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.dropdown-menu button:hover {
+  background-color: rgba(255, 255, 255, 0.1); 
+}
+
+.dropdown.active .dropdown-menu {
+  display: flex;
+}

@@ -1,0 +1,19 @@
+.stats {
+  background-color: #00897b;
+  color: white;
+  padding: 1rem 5%;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat-item h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.stat-item p {
+  font-size: 1.25rem;
+  opacity: 0.8;
+}
