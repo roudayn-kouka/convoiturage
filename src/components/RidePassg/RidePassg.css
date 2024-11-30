@@ -1,0 +1,23 @@
+.card-status.completed {
+    background-color: #f0f0f0;
+    color: #4a4a4a;
+  }
+  
+  .card-status.confirmed {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .card-status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .star {
+    color: #ffc107;
+    cursor: pointer;
+  }
+  
+  .star.inactive {
+    color: #e4e5e9;
+  }

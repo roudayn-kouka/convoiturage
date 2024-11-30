@@ -1,10 +1,13 @@
 import React from 'react';
 import './AboutUs.css'; 
 import Footer from '../Footer/Footer';
+import Navbar from '../Navbar/Navbar';
 
 const AboutUs = () => {
   return (
+   
     <div>
+    <Navbar />
     <div className="about-us-page">
       <div className="about-us-content">
         <h1>About Us</h1>

@@ -1,0 +1,62 @@
+.ride-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .ride-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  .ride-card-avatar {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 50%;
+    border: 2px solid #16a34a;
+  }
+  
+  .ride-card-rating {
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  
+  .ride-card-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #16a34a;
+  }
+  
+  .ride-card-icon {
+    width: 1.5rem; /* 24px */
+    height: 1.5rem; /* 24px */
+    color: #16a34a;
+    margin-right: 0.5rem;
+  }
+  
+  .ride-card-pill {
+    display: flex;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+  }
+  
+  .ride-card-button {
+    background: linear-gradient(to right, #16a34a, #15803d);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  
+  .ride-card-button:hover {
+    background: linear-gradient(to right, #15803d, #14532d);
+    transform: scale(1.05);
+  }
+  
+
+  .btn{
+    padding-right: 10%;
+  }
+

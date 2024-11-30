@@ -1,0 +1,23 @@
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f7fafc;
+}
+
+/* Content Container */
+.content-container {
+  margin-left: 18rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding-top: 4rem;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}

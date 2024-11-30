@@ -6,18 +6,24 @@ import SignIn from './components/Auth/SignIn';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import AboutUs from './components/AboutUs/AboutUs';
+import Dashboard from './components/Dashboard/Dashboard';
 
 
 function App() {
+  
   return (
     <Router>
       <div className="app">
-        <Navbar />
+      
         <Routes>
+        
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/AboutUs" element={<AboutUs />} />
+          <Route path="/dashboard/*" element={<Dashboard />} />
+
+          
         </Routes>
       </div>
     </Router>
