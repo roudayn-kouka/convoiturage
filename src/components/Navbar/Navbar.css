@@ -63,12 +63,12 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.dropdown {
+.custom-dropdown {
   position: relative;
   display: inline-block;
 }
 
-.dropdown-menu {
+.custom-dropdown-menu {
   position: absolute;
   background-color: #0c564f; 
   min-width: 110px;
@@ -79,7 +79,7 @@
   border-radius: 0.5rem;
 }
 
-.dropdown-menu button {
+.custom-dropdown-menu button {
   background: none;
   color: white;
   padding: 0.75rem 1.5rem;
@@ -91,10 +91,10 @@
   border-radius: 0.5rem;
 }
 
-.dropdown-menu button:hover {
+.custom-dropdown-menu button:hover {
   background-color: rgba(255, 255, 255, 0.1); 
 }
 
-.dropdown.active .dropdown-menu {
+.custom-dropdown.active .custom-dropdown-menu {
   display: flex;
 }

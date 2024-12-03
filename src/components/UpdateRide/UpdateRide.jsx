@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { governorates, cities } from '../../Data/locations';
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function CreateRide() {
-  const [formData, setFormData] = useState({
-    phone: '',
-    hasBaggage: '',
-    price: '',
-    time: '',
-    date: '', 
+
+export default function UpdateRide() {
+//id trajet
+ const { rideId } = useParams();
+
+ const [formData, setFormData] = useState({
+    phone: '21950235',
+    hasBaggage: 'sans bagage',
+    price: '5',
+    time: '12:30',
+    date: '2025-02-12', 
+    gender: 'garçon',
     seats: '1',
-    fromGov: '',
-    fromCity: '',
-    toGov: '',
-    toCity: '',
-    gender: ''
+    fromGov: 'Nabeul',
+    fromCity: 'Nabeul Ville',
+    toGov: 'Tunis',
+    toCity: 'FST'
   });
 
   const [fromCities, setFromCities] = useState([]);
   const [toCities, setToCities] = useState([]);
   const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (formData.fromGov) {
@@ -56,7 +60,6 @@ export default function CreateRide() {
     }
     return true;
   };
-
   const validatePhone = (phone) => {
     const phoneRegex = /^[0-9]{8}$/;
     return phoneRegex.test(phone);
@@ -68,7 +71,6 @@ export default function CreateRide() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!validatePhone(formData.phone)) {
       setFormError('Le numéro de téléphone doit contenir seulement des chiffres et être composé de 8 chiffres.');
       return;
@@ -78,34 +80,14 @@ export default function CreateRide() {
       setFormError('Le prix doit être un nombre valide.');
       return;
     }
-
     if (validateFSTLocation() && validateDate()) {
-      console.log(formData);
-      // Affichage de l'alerte de succès
-      setSuccessMessage('Le trajet a été créé avec succès!');
-      // Réinitialisation des champs du formulaire
-      setTimeout(() => {
-        setFormData({
-          phone: '',
-          hasBaggage: '',
-          price: '',
-          time: '',
-          date: '', 
-          seats: '1',
-          fromGov: '',
-          fromCity: '',
-          toGov: '',
-          toCity: '',
-          gender: ''
-        });
-        setSuccessMessage('');
-      }, 3000); // L'alerte disparaît après 3 secondes
+      console.log("Trajet mis à jour :", formData);
     }
   };
 
   return (
     <div className="container bg-white p-5 rounded shadow-sm">
-      <h2 className="text-center text-2xl font-bold text-success mb-4">Créer un nouveau trajet</h2>
+      <h2 className="text-center text-2xl font-bold text-success mb-4">Modifier votre trajet</h2>
       
       <form onSubmit={handleSubmit}>
         <div className="row mb-3">
@@ -170,7 +152,6 @@ export default function CreateRide() {
               ))}
             </select>
           </div>
-          
           <div className="col-md-6 d-flex justify-content-between">
             {/* Bagages autorisés */}
             <div className="me-2" style={{ flex: 1 }}>
@@ -277,17 +258,11 @@ export default function CreateRide() {
           </div>
         )}
 
-        {successMessage && (
-          <div className="alert alert-success mb-3">
-            {successMessage}
-          </div>
-        )}
-
         <button
           type="submit"
           className="btn btn-success w-100"
         >
-          Créer le trajet
+          Modifier le trajet
         </button>
       </form>
     </div>

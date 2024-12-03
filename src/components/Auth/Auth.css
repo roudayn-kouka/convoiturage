@@ -103,3 +103,100 @@
   .auth-redirect a:hover {
     text-decoration: underline;
   }
+
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .popup {
+    position: relative; /* Nécessaire pour positionner la croix */
+    background: #fff;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25);
+    animation: popupSlide 0.3s ease-in-out;
+  }
+  
+  @keyframes popupSlide {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .popup-icon {
+    font-size: 50px;
+    color: #4caf50;
+    margin-bottom: 20px;
+  }
+  
+  .popup h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .popup p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #555;
+  }
+  
+  .close-popup-button {
+    padding: 10px 20px;
+    background-color: #048e3b; 
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .close-popup-button:hover {
+    background-color: #048e3be3;
+  }
+  
+  .close-popup-cross {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .close-popup-cross:hover {
+    color: #007BFF;
+  }
+  
+ 
+  

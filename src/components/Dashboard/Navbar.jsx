@@ -9,6 +9,20 @@ const Navbar = () => {
     setDropdownOpen(!isDropdownOpen);
   };
 
+  const handleLogout = () => {
+    // Récupérer le rôle depuis localStorage
+    const role = localStorage.getItem('role');
+    
+    // Rediriger vers la page de connexion correspondante
+    if (role === 'passenger') {
+      window.location.href = '/signin';
+    } else if (role === 'driver') {
+      window.location.href = '/signincov';
+    } 
+    // Optionnel : Effacer les données de session/localStorage
+    localStorage.clear();
+  };
+
   return (
     <div className="navbar-container">
       <h2 className="navbar-title">Dashboard</h2>
@@ -39,7 +53,7 @@ const Navbar = () => {
               Profile
             </div>
            
-            <div className="dropdown-item" role="menuitem">
+            <div className="dropdown-item" role="menuitem" onClick={handleLogout}>
               Logout
             </div>
           </div>

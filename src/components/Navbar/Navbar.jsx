@@ -39,26 +39,26 @@ const Navbar = () => {
         
         {/* Sign Up Dropdown */}
         <div 
-          className={`dropdown ${showSignUpDropdown ? 'active' : ''}`} 
+          className={`custom-dropdown ${showSignUpDropdown ? 'active' : ''}`} 
           onMouseEnter={() => handleSignUpHover(true)}
           onMouseLeave={() => handleSignUpHover(false)}
         >
           <button className="btn-signup">Sign Up</button>
-          <div className="dropdown-menu">
-            <button onClick={() => handleNavigation('/signup')}>Ride</button>
+          <div className="custom-dropdown-menu">
+            <button onClick={() => handleNavigation('/signupcov')}>Ride</button>
             <button onClick={() => handleNavigation('/signup')}>Client</button>
           </div>
         </div>
 
         {/* Sign In Dropdown */}
         <div 
-          className={`dropdown ${showSignInDropdown ? 'active' : ''}`} 
+          className={`custom-dropdown ${showSignInDropdown ? 'active' : ''}`} 
           onMouseEnter={() => handleSignInHover(true)}
           onMouseLeave={() => handleSignInHover(false)}
         >
           <button className="btn-login">Login</button>
-          <div className="dropdown-menu">
-            <button onClick={() => handleNavigation('/signin')}>Ride</button>
+          <div className="custom-dropdown-menu">
+            <button onClick={() => handleNavigation('/signincov')}>Ride</button>
             <button onClick={() => handleNavigation('/signin')}>Client</button>
           </div>
         </div>

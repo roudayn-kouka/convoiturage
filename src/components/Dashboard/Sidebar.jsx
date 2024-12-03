@@ -1,19 +1,37 @@
 import React from 'react';
-import { Car, Search, Users, Calendar, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { Car, Search, Users, Calendar, MessageSquare, Settings, LogOut,MapPin,CalendarCheck,MapPinPlus,ClipboardList,} from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
 
 const Sidebar = () => {
   const location = useLocation();
 
-  const menuItems = [
-    { icon: Search, text: 'Search Rides', path: '/dashboard/' },
-    { icon: Users, text: 'My Rides', path: '/dashboard/my-rides' },
-    { icon: Calendar, text: 'Mes réservations', path: '/dashboard/reservations' },
-    { icon: MessageSquare, text: 'Créer un trajet', path: '/dashboard/addtrajet' },
-    { icon: Settings, text: 'Settings', path: '/settings' },
+  /*const menuItems = [
+    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/' },
+    { icon: Car, text: 'Mes trajets', path: '/dashboard/my-rides' },
+    { icon: CalendarCheck, text: 'Mes réservations', path: '/dashboard/reservations' },
+    { icon: MapPinPlus, text: 'Créer un trajet', path: '/dashboard/addtrajet' },
+    { icon: ClipboardList, text: 'Gestion réservations', path: '/dashboard/GestionRev' },
+  ];*/
+
+  const role = localStorage.getItem('role');
+
+
+  // Menu items pour conducteur
+  const driverMenuItems = [
+    { icon: Car, text: 'Mes trajets', path: '/dashboard/my-rides' },
+    { icon: MapPinPlus, text: 'Créer un trajet', path: '/dashboard/addtrajet' },
+    { icon: ClipboardList, text: 'Gestion réservations', path: '/dashboard/GestionRev' },
+
   ];
 
+  // Menu items pour passager
+  const passengerMenuItems = [
+    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/' },
+    { icon: CalendarCheck, text: 'Mes réservations', path: '/dashboard/reservations' },
+  ];
+  // Choisir les items en fonction du rôle
+  const menuItems = role === 'driver' ? driverMenuItems : passengerMenuItems;
   return (
     <div className="sidebar-container">
       {/* Sidebar Header */}

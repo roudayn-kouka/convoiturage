@@ -4,11 +4,12 @@ import CardRide from "./CardRide";
 import { getAllRides } from "../../Api/rideOffersApi"; // Importation de l'API
 
 const mockOffers = [
+  
   {
     id: 1,
     driver: "John Smith",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-    phone: "+216 55 123 456",
+    phone: "55 123 456",
     departureGov: "Tunis",
     departureLoc: "FST",
     arrivalGov: "Ariana",
@@ -18,77 +19,60 @@ const mockOffers = [
     price: "5",
     seats: 1,
     luggageType: "avec bagage",
-    rating: 4.8
+    rating: 5,
+    gender: "garçon",
+  },{
+    id: 2,
+    driver: "Sarah Wilson",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    phone: "55 789 012",
+    departureGov: "Tunis",
+    departureLoc: "FST",
+    arrivalGov: "Ben Arous",
+    arrivalLoc: "Radès",
+    date: "2024-02-20",
+    time: "09:30",
+    price: "4",
+    seats: 1,
+    luggageType: "sans bagage",
+    rating: 4,
+    gender: "fille",
   },
   {
     id: 2,
     driver: "Sarah Wilson",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "+216 55 789 012",
+    phone: "55 789 012",
     departureGov: "Tunis",
     departureLoc: "FST",
     arrivalGov: "Ben Arous",
-    arrivalLoc: "Rades",
+    arrivalLoc: "Radès",
     date: "2024-02-20",
     time: "09:30",
     price: "4",
     seats: 2,
     luggageType: "sans bagage",
-    rating: 4.5
-  }
-  ,
+    rating: 2,
+    gender: "fille",
+  },
   {
-    id: 2,
-    driver: "Sarah Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "+216 55 789 012",
+    id: 3,
+    driver: "Alex Taylor",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    phone: "55 456 789",
     departureGov: "Tunis",
     departureLoc: "FST",
-    arrivalGov: "Ben Arous",
-    arrivalLoc: "Rades",
+    arrivalGov: "Manouba",
+    arrivalLoc: "Douar Hicher",
     date: "2024-02-20",
-    time: "09:30",
-    price: "4",
-    seats: 2,
-    luggageType: "sans bagage",
-    rating: 4.5
-  }
-  ,
-  {
-    id: 2,
-    driver: "Sarah Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "+216 55 789 012",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Ben Arous",
-    arrivalLoc: "Rades",
-    date: "2024-02-20",
-    time: "09:30",
-    price: "4",
-    seats: 2,
+    time: "10:30",
+    price: "6",
+    seats: 3,
     luggageType: "avec bagage",
-    rating: 4.5
-  }
-  ,
-  {
-    id: 2,
-    driver: "Sarah Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "+216 55 789 012",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Ben Arous",
-    arrivalLoc: "Rades",
-    date: "2024-02-20",
-    time: "09:30",
-    price: "4",
-    seats: 2,
-    luggageType: "Avec bagage",
-    rating: 4.5
-  }
+    rating: 4.5,
+    gender: "fille&garçon",
+  },
 ];
-
 
 export default function RideOffers() {
     //const [offers, setOffers] = useState([]);
@@ -106,7 +90,8 @@ export default function RideOffers() {
         offer.departureGov === filters.fromGov &&
         offer.departureLoc === filters.fromCity &&
         offer.arrivalGov === filters.toGov &&
-        offer.arrivalLoc === filters.toCity
+        offer.arrivalLoc === filters.toCity &&
+        offer.gender === filters.genderFilter
        );
       });
 

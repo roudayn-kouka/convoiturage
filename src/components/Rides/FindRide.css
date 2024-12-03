@@ -100,3 +100,18 @@
   color: #ef4444; /* text-red-500 */
   font-size: 0.875rem; /* text-sm */
 }
+
+
+
+.gender-filter-section {
+  margin-top: 16px; /* mt-4 */
+  display: flex;
+  flex-direction: column; /* Éléments empilés */
+  gap: 8px; /* Espacement entre éléments */
+}
+
+.gender-filter-section h3 {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600;
+  color: #4b5563; /* text-gray-700 */
+}

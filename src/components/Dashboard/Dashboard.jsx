@@ -7,6 +7,7 @@ import Rides from '../Rides/Rides';
 import RideCond from '../RideCond/RideCond';
 import RidePassg from '../RidePassg/RidePassg';
 import AddRide from '../AddRide/AddRide';
+import UpdateRide from '../UpdateRide/UpdateRide';
 
 
 const Dashboard = () => {
@@ -24,7 +25,9 @@ const Dashboard = () => {
               <Route path="/my-rides" element={<RideCond />} />
               <Route path="/reservations" element={<RidePassg />} />
               <Route path="/addtrajet" element={<AddRide />} />
-              <Route path="/settings" element={<div>Settings</div>} />
+              <Route path="/updateride/:rideId" element={<UpdateRide />} />
+
+              <Route path="/GestionRev" element={<div>Gestion réservations</div>} />
             </Routes>
           </main>
 

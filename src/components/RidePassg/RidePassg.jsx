@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Star, Phone, Luggage, MapPin, Users } from "lucide-react";
-import { Modal, Button } from "react-bootstrap"; // Importation de react-bootstrap
+import { Star, Phone, Luggage, MapPin, Users, X } from "lucide-react";
+import { Modal, Button } from "react-bootstrap";
 
 const mockTrips = [
   {
@@ -10,6 +10,7 @@ const mockTrips = [
     date: "2024-03-20",
     time: "09:30",
     seats: 3,
+    seatsr: 2,
     luggage: "avec bagage",
     phone: "23456789",
     price: 25,
@@ -19,13 +20,16 @@ const mockTrips = [
     toCity: "Hammam Sousse",
     status: "confirmed",
     rating: null,
-  },{
-    driver: "Sophie Martin",
+  },
+  
+  {
+    driver: "Samia Aissa",
     driverImage:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
     date: "2024-03-20",
     time: "09:30",
     seats: 3,
+    seatsr: 2,
     luggage: "avec bagage",
     phone: "23456789",
     price: 25,
@@ -33,25 +37,8 @@ const mockTrips = [
     fromCity: "La Marsa",
     toGov: "Sousse",
     toCity: "Hammam Sousse",
-    status: "confirmed",
-    rating: null,
-  },
-  {
-    driver: "Ahmed Ben Ali",
-    driverImage:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
-    date: "2024-03-15",
-    time: "14:00",
-    seats: 2,
-    luggage: "sans bagage",
-    phone: "98765432",
-    price: 30,
-    fromGov: "Sfax",
-    fromCity: "Sfax Ville",
-    toGov: "Gabès",
-    toCity: "Gabès Ville",
     status: "completed",
-    rating: 4,
+    rating: 3,
   },
   {
     driver: "Ahmed Ben Ali",
@@ -60,6 +47,7 @@ const mockTrips = [
     date: "2024-03-15",
     time: "14:00",
     seats: 2,
+    seatsr: 4,
     luggage: "sans bagage",
     phone: "98765432",
     price: 30,
@@ -76,23 +64,8 @@ const mockTrips = [
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
     date: "2024-03-25",
     time: "16:45",
-    seats: 1,
-    luggage: "avec bagage",
-    phone: "55443322",
-    price: 20,
-    fromGov: "Nabeul",
-    fromCity: "Hammamet",
-    toGov: "Monastir",
-    toCity: "Monastir Ville",
-    status: "pending",
-    rating: null,
-  },{
-    driver: "Leila Trabelsi",
-    driverImage:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
-    date: "2024-03-25",
-    time: "16:45",
-    seats: 1,
+    seats: 3,
+    seatsr: 3,
     luggage: "avec bagage",
     phone: "55443322",
     price: 20,
@@ -107,9 +80,13 @@ const mockTrips = [
 
 function ReservationsList() {
   const [trips, setTrips] = useState(mockTrips);
-  const [showModal, setShowModal] = useState(false); // Pour afficher la popup
-  const [cancelConfirm, setCancelConfirm] = useState({}); // Garde une trace des annulations
-  const [selectedTripIndex, setSelectedTripIndex] = useState(null); // Pour garder la trace du trajet sélectionné
+  const [showModal, setShowModal] = useState(false);
+  const [showModifyModal, setShowModifyModal] = useState(false); // Nouvel état pour le modal de modification
+  const [modalContent, setModalContent] = useState(null);
+  const [cancelConfirm, setCancelConfirm] = useState({});
+  const [selectedTripIndex, setSelectedTripIndex] = useState(null);
+  const [modifiedSeats, setModifiedSeats] = useState(1); // État pour le nombre de places modifié
+  const [availableSeats, setAvailableSeats] = useState(0); // Nombre de places disponibles
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -146,32 +123,63 @@ function ReservationsList() {
     console.log(`Trajet ${index} noté ${value} étoiles.`);
   };
 
-  const handleConfirmedCancelClick = (index) => {
-    setSelectedTripIndex(index); // Enregistrer l'index du trajet
-    setShowModal(true); // Affiche immédiatement la popup
+  const handleCancelClick = (index, isConfirmed) => {
+    if (isConfirmed) {
+      setModalContent("Les réservations confirmées ne peuvent pas être annulées.");
+      setShowModal(true);
+    } else {
+      setCancelConfirm((prev) => ({
+        ...prev,
+        [index]: true,
+      }));
+    }
   };
 
-  const handlePendingCancelClick = (index) => {
-    setCancelConfirm((prev) => ({
-      ...prev,
-      [index]: true, // Lorsque l'utilisateur clique, on passe en mode "confirmer"
-    }));
-    setSelectedTripIndex(index); // Enregistrer l'index du trajet en attente
+  const handleModifyClick = (index, isConfirmed) => {
+    if (isConfirmed) {
+      setModalContent("Les réservations confirmées ne peuvent pas être modifiées.");
+      setShowModal(true);
+    } else {
+      const trip = trips[index];
+      setSelectedTripIndex(index);
+      setModifiedSeats(trip.seatsr); // Pré-remplir avec le nombre de places actuelles
+      setAvailableSeats(trip.seats); // Le nombre de places disponibles est égal au nombre de places actuelles
+      setShowModifyModal(true); // Affiche le modal de modification
+    }
   };
 
-  const handleCancel = (index) => {
-    console.log(`Réservation annulée pour le trajet ${index}`);
-    // Vous pouvez ajouter ici le code pour annuler la réservation dans l'état.
+  const handleCancelConfirm = (index) => {
     setTrips((prevTrips) =>
       prevTrips.map((trip, i) =>
         i === index ? { ...trip, status: "canceled" } : trip
       )
+      
     );
-    setCancelConfirm((prev) => ({ ...prev, [index]: false })); // Réinitialiser l'état de confirmation
+    console.log("reservation supprimée")
+    setCancelConfirm((prev) => ({ ...prev, [index]: false }));
   };
 
-  const handleModalClose = () => setShowModal(false); // Fermer la popup
+  const handleModifyModalClose = () => setShowModifyModal(false); // Ferme le modal de modification
+  const handleModalClose = () => setShowModal(false);
+  const handleSaveModify = (e) => {
+    e.preventDefault();
+    // Validation du nombre de places modifiées
+    if (modifiedSeats > availableSeats) {
+      alert("Le nombre de places réservées ne peut pas dépasser le nombre de places disponibles.");
+      return;
+    }
 
+    // Sauvegarder les modifications
+    const updatedTrips = [...trips];
+    updatedTrips[selectedTripIndex] = {
+      ...updatedTrips[selectedTripIndex],
+      seatsr: modifiedSeats,
+    };
+    setTrips(updatedTrips);
+    console.log(updatedTrips[selectedTripIndex]);
+
+    setShowModifyModal(false); // Fermer le modal après modification
+  };
   return (
     <div className="container py-4">
       <h2 className="mb-4">Mes Réservations</h2>
@@ -226,14 +234,14 @@ function ReservationsList() {
                 <div className="d-flex justify-content-between align-items-center border-top pt-3">
                   <div className="d-flex align-items-center">
                     <Phone className="text-success me-2" />
-                    <span className="text-muted me-4">{trip.phone}</span>
+                    <span className="text-muted me-4">+216 {trip.phone}</span>
                     <Luggage className="text-success me-2" />
                     <span className="text-muted me-4">
                       {trip.luggage === "avec bagage" ? "Avec bagage" : "Sans bagage"}
                     </span>
                     <Users className="text-success me-2" />
                     <span className="text-muted">
-                      {trip.seats} place{trip.seats > 1 ? "s" : ""}
+                      {trip.seatsr} place{trip.seatsr > 1 ? "s" : ""}
                     </span>
                   </div>
                   <div className="fw-bold text-success">{trip.price} DT</div>
@@ -262,46 +270,41 @@ function ReservationsList() {
                     </div>
                   </div>
                 )}
-
                 {(trip.status === "confirmed" || trip.status === "pending") && (
                   <div className="mt-3 pt-3 border-top">
                     {!cancelConfirm[index] ? (
-                      <div className="text-center text-danger">
+                      <div className="d-flex justify-content-between">
                         <button
                           onClick={() =>
-                            trip.status === "confirmed"
-                              ? handleConfirmedCancelClick(index)
-                              : handlePendingCancelClick(index)
+                            handleCancelClick(index, trip.status === "confirmed")
                           }
-                          className="btn btn-outline-danger w-100"
+                          className="btn btn-outline-danger"
                         >
                           Annuler la réservation
                         </button>
+                        <button
+                          onClick={() =>
+                            handleModifyClick(index, trip.status === "confirmed")
+                          }
+                          className="btn btn-outline-primary"
+                        >
+                          Modifier la réservation
+                        </button>
                       </div>
                     ) : (
-                      <div>
-                        <p className="text-center text-muted">
-                          Êtes-vous sûr de vouloir annuler cette réservation ?
-                        </p>
-                        <div className="d-flex">
-                          <button
-                            onClick={() => handleCancel(index)}
-                            className="btn btn-danger flex-fill me-2"
-                          >
-                            Confirmer
-                          </button>
-                          <button
-                            onClick={() =>
-                              setCancelConfirm((prev) => ({
-                                ...prev,
-                                [index]: false,
-                              }))
-                            }
-                            className="btn btn-light flex-fill"
-                          >
-                            Retour
-                          </button>
-                        </div>
+                      <div className="d-flex justify-content-between">
+                        <button
+                          onClick={() => handleCancelConfirm(index)}
+                          className="btn btn-danger"
+                        >
+                          Confirmer l'annulation
+                        </button>
+                        <button
+                          onClick={() => setCancelConfirm((prev) => ({ ...prev, [index]: false }))}
+                          className="btn btn-outline-secondary"
+                        >
+                          Annuler
+                        </button>
                       </div>
                     )}
                   </div>
@@ -312,23 +315,71 @@ function ReservationsList() {
         ))}
       </div>
 
-      {/* Modal pour la confirmation de l'annulation */}
+      {/* Modal d'alerte général */}
       <Modal show={showModal} onHide={handleModalClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Erreur</Modal.Title>
+          <Modal.Title>Avertissement</Modal.Title>
         </Modal.Header>
+        <Modal.Body>{modalContent}</Modal.Body>
+        <Modal.Footer>
+          
+        <button
+        className="btn btn-danger "
+        onClick={handleModalClose}
+      >
+        Ok
+      </button>
+        </Modal.Footer>
+      </Modal>
+
+       {/* Modal de modification */}
+
+       <Modal show={showModifyModal} onHide={handleModifyModalClose}>
+      
+
+        <Modal.Header closeButton>
+          <Modal.Title>Modifier la Réservation</Modal.Title>
+        </Modal.Header>
+        <form onSubmit={handleSaveModify}>
+
         <Modal.Body>
-          {trips[selectedTripIndex]?.status === "confirmed" ? (
-            <p  className="text-danger">Cette réservation ne peut pas être annulée après confirmation.</p>
-          ) : (
-            <p>Êtes-vous sûr de vouloir annuler cette réservation ?</p>
-          )}
+        <div className="form-group mb-3">
+
+          <label className="form-label">Nombre de places à réserver</label>
+          <input
+            type="number"
+            min="1"
+            max={availableSeats}
+            value={modifiedSeats}
+            onChange={(e) => setModifiedSeats(parseInt(e.target.value))}
+            className="form-control mb-2"
+            required
+          />
+          <small className="text-muted">
+            Nombre de places disponibles : {availableSeats}
+          </small>
+          </div>
+
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalClose}>
-            Fermer
-          </Button>
+        <Button
+      variant="danger"
+      className="flex-grow-1 me-2"
+      onClick={handleModifyModalClose}
+    >
+      Fermer
+    </Button>
+    <Button
+    type="submit"
+      variant="success"
+      className="flex-grow-1 me-2"
+      
+    >
+      Sauvgarder
+    </Button>
         </Modal.Footer>
+        </form>
+
       </Modal>
     </div>
   );

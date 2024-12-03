@@ -59,12 +59,12 @@ const SignIn = () => {
       } else {
         localStorage.removeItem('email'); // Si "Se souvenir de moi" n'est pas coché, supprimer l'email
       }
-       // Sauvegarder le rôle dans localStorage
-       localStorage.setItem('role', "passenger");
+      // Sauvegarder le rôle dans localStorage
+      localStorage.setItem('role', "driver");
       // Logique pour soumettre le formulaire
       console.log('Form submitted successfully:', formData);
-        // Redirection vers le tableau de bord
-        navigate('/dashboard');
+       // Redirection vers le tableau de bord
+       navigate('/dashboard');
     }
   };
 
@@ -111,7 +111,7 @@ const SignIn = () => {
             <button type="submit" className="auth-button">Se connecter</button>
           </form>
           <p className="auth-redirect">
-            Vous n'avez pas de compte ? <Link to="/signup">Inscrivez-vous</Link>
+            Vous n'avez pas de compte ? <Link to="/signupcov">Inscrivez-vous</Link>
           </p>
         </div>
       </div>

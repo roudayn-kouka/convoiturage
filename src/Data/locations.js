@@ -40,7 +40,7 @@ export const governorates = [
     Kebili: ['Kebili Ville', 'Douz', 'Souk Lahad', 'El Faouar'],
     Mahdia: ['Mahdia Ville', 'Ksour Essef', 'Chebba', 'El Jem', 'Bou Merdes', 'Hebira', 'Sidi Alouane', 'Chorbane'],
     Manouba: ['Manouba Ville', 'Douar Hicher', 'Oued Ellil', 'Tebourba', 'Borj El Amri', 'El Battan', 'Mornaguia'],
-    Medenine: ['Medenine Ville', 'Zarzis', 'Djerba Houmt Souk', 'Djerba Midoun', 'Djerba Ajim', 'Ben Guerdane', 'Beni Khedache'],
+    Médenine: ['Medenine Ville', 'Zarzis', 'Djerba Houmt Souk', 'Djerba Midoun', 'Djerba Ajim', 'Ben Guerdane', 'Beni Khedache'],
     Monastir: ['Monastir Ville', 'Sahline', 'Moknine', 'Jemmal', 'Ksibet El Mediouni', 'Ksar Hellal', 'Bembla', 'Bekalta', 'Zaouiet Kontoch'],
     Nabeul: ['Nabeul Ville', 'Hammamet', 'Korba', 'Kelibia', 'Menzel Temime', 'Grombalia', 'Dar Chaabane', 'Soliman', 'Takelsa', 'Beni Khalled', 'Menzel Bouzelfa'],
     Sfax: ['Sfax Ville', 'Sakiet Ezzit', 'Sakiet Eddaier', 'El Ain', 'Agareb', 'Menzel Chaker', 'Bir Ali Ben Khalifa', 'Skhira', 'Jebiniana', 'Kerkennah'],

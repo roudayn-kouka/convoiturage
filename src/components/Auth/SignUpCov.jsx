@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate  } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Auth.css';
 import Navbar from '../Navbar/Navbar';
 
@@ -9,65 +9,64 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
+    image: null,
   });
 
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate(); // Hook pour la redirection
+  const [showPopup, setShowPopup] = useState(false); // État pour la popup
 
   const validateForm = () => {
     const newErrors = {};
 
-    // Validation stricte du nom complet
     if (!formData.name.trim()) {
       newErrors.name = "Le nom complet est obligatoire.";
     } else {
-      // Vérification : au moins deux mots
       if (!/^.+\s.+$/.test(formData.name)) {
         newErrors.nameWords = "Le nom complet doit contenir au moins deux mots.";
-      }
-
-      // Vérification : que des lettres et espaces
-      else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+      } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
         newErrors.nameLetters = "Le nom complet doit contenir uniquement des lettres et des espaces.";
-      }
-      // Limite la longueur du nom complet à 20 caractères
-      else if (formData.name.length > 20) {
+      } else if (formData.name.length > 20) {
         newErrors.nameLength = "Le nom complet ne doit pas dépasser 20 caractères.";
       }
     }
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      newErrors.email = "e-mail est obligatoire.";
+      newErrors.email = "L'e-mail est obligatoire.";
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "S'il vous plaît, mettez une adresse email valide.";
     }
 
-    // Validation du mot de passe
+    const phoneRegex = /^[0-9]{8}$/;
+    if (!formData.phone) {
+      newErrors.phone = "Le numéro de téléphone est obligatoire.";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
+    }
+
     const passwordRegexLength = /^.{8,}$/;
     const passwordRegexStrength = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-    
     if (!formData.password) {
       newErrors.password = "Le mot de passe est obligatoire.";
     } else {
       if (!passwordRegexLength.test(formData.password)) {
         newErrors.passwordLength = "Le mot de passe doit comporter au moins 8 caractères.";
-      }
-      else if (!passwordRegexStrength.test(formData.password)) {
+      } else if (!passwordRegexStrength.test(formData.password)) {
         newErrors.passwordStrength = "Le mot de passe doit contenir une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial.";
       }
-
     }
 
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Confirmer le mot de passe est obligatoire.";
-    } else 
-    // Validation de la confirmation du mot de passe
-    if (formData.confirmPassword !== formData.password) {
+    } else if (formData.confirmPassword !== formData.password) {
       newErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
     }
-  
+
+    if (!formData.image) {
+      newErrors.image = "L'image est obligatoire.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -80,15 +79,21 @@ const SignUp = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      image: file,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-       // Sauvegarder le rôle dans localStorage
-       localStorage.setItem('role', "passenger");
-      // Logique pour l'envoi des données
-      console.log('Form submitted successfully:', formData);
-        // Redirection vers le tableau de bord
-        navigate('/dashboard');
+      setShowPopup(true); // Affiche la popup
+     
+      console.log('Formulaire soumis avec succès :', formData);
+       
     }
   };
 
@@ -106,13 +111,12 @@ const SignUp = () => {
                 id="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Entrez votre nom complet"
+                placeholder="Entrez votre nom complet" 
               />
               {errors.name && <p className="error-message">{errors.name}</p>}
               {errors.nameWords && <p className="error-message">{errors.nameWords}</p>}
               {errors.nameLetters && <p className="error-message">{errors.nameLetters}</p>}
               {errors.nameLength && <p className="error-message">{errors.nameLength}</p>}
-
             </div>
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -124,6 +128,17 @@ const SignUp = () => {
                 placeholder="Entrez votre email"
               />
               {errors.email && <p className="error-message">{errors.email}</p>}
+            </div>
+            <div className="form-group">
+              <label htmlFor="phone">Numéro de téléphone</label>
+              <input
+                type="text"
+                id="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Entrez votre numéro de téléphone"
+              />
+              {errors.phone && <p className="error-message">{errors.phone}</p>}
             </div>
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>
@@ -147,17 +162,52 @@ const SignUp = () => {
                 onChange={handleChange}
                 placeholder="Confirmez votre mot de passe"
               />
-              {errors.confirmPassword && (
-                <p className="error-message">{errors.confirmPassword}</p>
-              )}
+              {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+            </div>
+            <div className="form-group">
+              <label htmlFor="image">Image de profil</label>
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+              {errors.image && <p className="error-message">{errors.image}</p>}
             </div>
             <button type="submit" className="auth-button">S'inscrire</button>
           </form>
           <p className="auth-redirect">
-          Vous avez déjà un compte ? <Link to="/signin">Se connecter</Link>
+            Vous avez déjà un compte ? <Link to="/signincov">Se connecter</Link>
           </p>
         </div>
       </div>
+      {showPopup && (
+  <div className="popup-overlay">
+    <div className="popup">
+      <button
+        className="close-popup-cross"
+        onClick={() => setShowPopup(false)}
+        aria-label="Fermer la popup"
+      >
+        &times;
+      </button>
+      <div className="popup-icon">
+        ✅
+      </div>
+      <h3>Inscription réussie !</h3>
+      <p>
+        Merci pour votre inscription. Votre compte est en attente de validation par l'administrateur. Merci de patienter.
+      </p>
+      <button
+        onClick={() => setShowPopup(false)}
+        className="close-popup-button"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
