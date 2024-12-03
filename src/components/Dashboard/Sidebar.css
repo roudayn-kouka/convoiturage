@@ -1,0 +1,127 @@
+/* Sidebar Container */
+/* Sidebar Container */
+.sidebar-container {
+  height: 100vh;
+  width: 18rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-image: url('../../photos/cov8.png');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  
+}
+/* Overlay (pour assombrir l'image et rendre le texte lisible) */
+.sidebar-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.426); /* Assombrir légèrement */
+  z-index: 1; /* S'assurer que l'overlay est au-dessus de l'image */
+}
+
+/* Contenu du sidebar */
+.sidebar-header,
+.sidebar-nav,
+.sidebar-footer {
+  position: relative;
+  z-index: 2; /* Au-dessus de l'overlay */
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.8rem;
+  color: #4caf50;
+
+}
+
+.sidebar-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-top: 1rem;
+
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 1rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: #e0f7fa;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(0, 150, 136, 0.7);
+  transform: scale(1.05);
+}
+
+.nav-item.active {
+  background-color: #26a69a;
+}
+
+.nav-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 1rem;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  color: #e0f7fa;
+  padding: 1rem;
+  border: none;
+  width: 100%;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(0, 150, 136, 0.7);
+  transform: scale(1.05);
+}
+
+.logout-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 1rem;
+}
+
+
+
+

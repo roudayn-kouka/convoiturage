@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Auth.css';
+import Navbar from '../Navbar/Navbar';
 
 const SignIn = () => {
   return (
+    <div>
+    <Navbar/>
+
     <div className="auth-container">
       <div className="auth-card">
         <h2>Welcome Back</h2>
@@ -28,6 +32,7 @@ const SignIn = () => {
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
+    </div>
     </div>
   );
 };
