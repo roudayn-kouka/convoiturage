@@ -15,6 +15,11 @@ const covoitureurschema = new mongoose.Schema({
           'Please provide a valid email'],
         unique:true,
     },
+    phoneNumber: {
+        type: String,
+        required: [true, 'Le numéro de téléphone est requis'],
+        match: [/^\d{8}$/, 'Le numéro de téléphone doit contenir 8 chiffres']
+    },
     password: {
         type: String,
         required: [true, 'Password is required'],
@@ -33,7 +38,7 @@ const covoitureurschema = new mongoose.Schema({
     image:{
         type :String,
         required:[true,'must provide image'],
-        match: [/\.(png)$/i, 'Le fichier doit être une image PNG (extension .png)'],
+       
     },
     solde: {
          type: Number,
@@ -52,11 +57,7 @@ const covoitureurschema = new mongoose.Schema({
         type: Boolean,
         default: false, // Compte non validé par défaut
     },
-    phoneNumber: {
-        type: String,
-        required: [true, 'Le numéro de téléphone est requis'],
-        match: [/^\d{8}$/, 'Le numéro de téléphone doit contenir 8 chiffres']
-    },
+    
 })
 covoitureurschema.pre('save', async function () {
         const salt = await bcrypt.genSalt(10)

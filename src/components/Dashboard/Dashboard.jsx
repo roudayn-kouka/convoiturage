@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
@@ -11,13 +11,24 @@ import UpdateRide from '../UpdateRide/UpdateRide';
 
 
 const Dashboard = () => {
+  const [passenger, setPassenger] = useState({ name: '', email: '' });
+
+  // Fetch user info from localStorage
+  useEffect(() => {
+    const name = localStorage.getItem('name');
+    const email = localStorage.getItem('email');
+
+    if (name && email) {
+      setPassenger({ name, email });
+    }
+  }, []);
   return (
    
       <div className="dashboard-container">
         <Sidebar />
         
         <div className="content-container">
-          <Navbar />
+          <Navbar passenger={passenger}/>
 
           <main className="main-content">
             <Routes>

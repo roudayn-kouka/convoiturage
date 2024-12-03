@@ -2,9 +2,11 @@ const Passenger = require('../models/passenger');
 const checkPasswordUsage = require('../utils/checkPasswordUsage');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError, InternalServerError } = require('../errors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-  const { email, password } = req.body;
+  const {name, email, password } = req.body;
 
   try {
     // Vérification si le mot de passe a déjà été utilisé
@@ -16,7 +18,7 @@ const register = async (req, res) => {
     // Vérification si l'email est déjà utilisé
     const existingPassenger = await Passenger.findOne({ email });
     if (existingPassenger) {
-      throw new BadRequestError('Cet email est déjà utilisé par un autre passager.');
+      return res.status(StatusCodes.BAD_REQUEST).json( 'cet email est deja utilisé' );
     }
 
     // Création d'un nouveau passager
@@ -27,7 +29,7 @@ const register = async (req, res) => {
 
     // Réponse avec le nom du passager et le token
     res.status(StatusCodes.CREATED).json({
-      passenger: { name: passenger.name },
+      passenger: { name: passenger.name,email:passenger.email },
       token,
     });
   } catch (error) {
@@ -36,7 +38,7 @@ const register = async (req, res) => {
       throw error;  // Si c'est une erreur déjà gérée, la relancer
     }
     console.error('Erreur lors de l\'inscription du passager :', error);
-    throw new InternalServerError('Erreur interne lors de l\'inscription.');
+    return res.status(StatusCodes.BAD_REQUEST).json( `Erreur interne lors de l'inscription` );
   }
 }
 
@@ -70,7 +72,7 @@ const login = async (req, res) => {
 
     // Réponse avec les informations du passager et le token
     res.status(StatusCodes.OK).json({
-      passenger: { name: passenger.name },
+      passenger: { name: passenger.name,email:passenger.email },
       token,
     });
   } catch (error) {

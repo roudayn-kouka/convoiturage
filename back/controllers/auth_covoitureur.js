@@ -1,6 +1,6 @@
 
 require('dotenv').config();
-const Covoitureur = require('../models/Covoitureur');
+const Covoitureur = require('../models/covoitureur');
 const sendEmail = require('../services/emailService');
 const checkPasswordUsage = require('../utils/checkPasswordUsage')
 const { StatusCodes } = require('http-status-codes');
@@ -8,7 +8,7 @@ const { BadRequestError, UnauthenticatedError, InternalServerError } = require('
 
 // Fonction d'inscription
 const register = async (req, res) => {
-  const { email, password, name, phoneNumber } = req.body;
+  const { name, email, phoneNumber, password, image} = req.body;
 
   try {
     console.log('Début de la vérification du mot de passe')
@@ -23,7 +23,7 @@ const register = async (req, res) => {
     const existingCovoitureur = await Covoitureur.findOne({ email });
     console.log('Recherche terminée :', existingCovoitureur)
     if (existingCovoitureur) {
-      throw new BadRequestError('Cet email est déjà utilisé.');
+      return res.status(StatusCodes.BAD_REQUEST).json( 'cet email est deja utilisé' );
     }
     console.log('Création du covoitureur...')
     // Créer un nouveau covoitureur
@@ -42,7 +42,7 @@ const register = async (req, res) => {
     try {
       console.log('Envoi de l\'email à l\'admin...');
       await sendEmail(process.env.ADMIN_EMAIL, subject, text);
-      console.log('Email envoyé');
+      
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email à l\'admin :', error);
     }

@@ -7,10 +7,10 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phoneNumber: '',
     password: '',
-    confirmPassword: '',
-    phone: '',
     image: null,
+    confirmPassword: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -39,10 +39,10 @@ const SignUp = () => {
     }
 
     const phoneRegex = /^[0-9]{8}$/;
-    if (!formData.phone) {
-      newErrors.phone = "Le numéro de téléphone est obligatoire.";
-    } else if (!phoneRegex.test(formData.phone)) {
-      newErrors.phone = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
+    if (!formData.phoneNumber) {
+      newErrors.phoneNumber = "Le numéro de téléphone est obligatoire.";
+    } else if (!phoneRegex.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
     }
 
     const passwordRegexLength = /^.{8,}$/;
@@ -81,15 +81,46 @@ const SignUp = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setFormData((prevData) => ({
-      ...prevData,
-      image: file,
-    }));
+    if (file) {
+      const reader = new FileReader();
+      
+      // Set up the reader to convert the file to base64
+      reader.onloadend = () => {
+        setFormData((prevData) => ({
+          ...prevData,
+          image: reader.result,
+        })); // This will be a base64 string
+      };
+      
+      // Read the image file as a data URL (base64 string)
+      reader.readAsDataURL(file);
+    }
+    
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (validateForm()) {
+      try {
+        // Save the role in localStorage
+        localStorage.setItem('role', 'covoitureur');
+      
+        // Send data to backend
+        const response = await fetch('http://localhost:3000/api/v1/auth_covoitureur/register', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+});
+
+        console.log('Registration successful:', response.data);
+
+        
+    } catch (error) {
+        console.error('Error during registration:', error);
+        alert('Registration failed. Please try again.');
+    }
       setShowPopup(true); // Affiche la popup
      
       console.log('Formulaire soumis avec succès :', formData);
@@ -130,15 +161,15 @@ const SignUp = () => {
               {errors.email && <p className="error-message">{errors.email}</p>}
             </div>
             <div className="form-group">
-              <label htmlFor="phone">Numéro de téléphone</label>
+              <label htmlFor="phoneNumber">Numéro de téléphone</label>
               <input
                 type="text"
-                id="phone"
-                value={formData.phone}
+                id="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 placeholder="Entrez votre numéro de téléphone"
               />
-              {errors.phone && <p className="error-message">{errors.phone}</p>}
+              {errors.phoneNumber && <p className="error-message">{errors.phoneNumber}</p>}
             </div>
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>
