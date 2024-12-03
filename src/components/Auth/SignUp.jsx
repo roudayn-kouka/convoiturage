@@ -86,7 +86,7 @@ const SignUp = () => {
         try {
             // Save the role in localStorage
             localStorage.setItem('role', 'passenger');
-          console.log('ok pass')
+          
             // Send data to backend
             const response = await fetch('http://localhost:3000/api/v1/auth_passenger/register', {
         method: 'POST',
