@@ -45,7 +45,8 @@ const auth = (roles = []) => {
   return async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.startsWith('Bearer')) {
+      console.log('En-tête Authorization invalide ou manquant')
       throw new UnauthenticatedError('Authentication invalid');
     }
 

@@ -7,7 +7,7 @@ const {
     deleteReservation
   } = require('../controllers/reservation');
   const express = require('express');
-  const auth = require('../middleware/auth'); // Middleware pour authentification et rôle
+  const auth = require('../middleware/authentification'); // Middleware pour authentification et rôle
   
   const router = express.Router();
   

@@ -17,16 +17,18 @@ const covoitureurschema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Please provide password'],
-        minlength: [8, 'Password must be at least 8 characters long'],
-        unique: true,
+        required: [true, 'Password is required'],
         validate: {
-            validator: function(value) {
-                // Expression régulière pour valider le mot de passe
-                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)
-            },
-            message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-      },
+          validator: function (value) {
+            // Ignore validation if the password is hashed
+            if (value.startsWith('$2b$') || value.startsWith('$2a$')) return true;
+    
+            // Validation pour les mots de passe non hachés
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(value);
+          },
+          message:
+            'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+        },
     },
     image:{
         type :String,

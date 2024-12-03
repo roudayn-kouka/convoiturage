@@ -10,7 +10,7 @@ const {
        getOffreco
      } = require("../controllers/offres");
      
-     const auth = require('../middleware/auth'); // Middleware pour authentification et gestion des rôles
+     const auth = require('../middleware/authentification'); // Middleware pour authentification et gestion des rôles
      const express = require("express");
      const router = express.Router();
      

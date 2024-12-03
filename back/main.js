@@ -6,13 +6,14 @@ const offres = require ('./routes/offres')
 const auth_passenger=require('./routes/auth-passenger')
 const auth_covoitureur=require('./routes/auth-covoitureur')
 const reservation=require('./routes/reservations')
+const admin =require('./routes/admin')
 require('dotenv').config()
 app.use(express.json())// use :fonction utilise pour ajouter des middlewares / express.json():est une middleware qui fait parser le corp d'une requete http qui est de format json {(key,value)variable} et le rende disponibles dans req.body.
 app.use('/api/v1/offre' , offres)
 app.use('/api/v1/auth_passenger' , auth_passenger)
 app.use('/api/v1/auth_covoitureur' , auth_covoitureur)
 app.use('/api/v1/reserver' ,reservation )
-
+app.use('/api/v1/admin',admin)
 
 const port= 4000 
 const start = async() => {//start est une fonction asynchrone.

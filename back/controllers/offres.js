@@ -85,19 +85,39 @@ const getOffreco = async (req, res) => {
 
 const getOffre = async (req, res) => {
   try {
-    const OffreId = req.params.id;
-    const offre = await Offre.findOne({ _id: OffreId });
+    const offreId = req.params.id;
+    const now = new Date();
 
+    // Calcul de l'heure actuelle en minutes
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Rechercher l'offre avec des conditions supplémentaires pour exclure les offres expirées
+    const offre = await Offre.findOne({
+      _id: offreId,
+      $or: [
+        // Offres dont la date de départ est après aujourd'hui
+        { dateDepart: { $gt: now } },
+
+        // Offres dont la date de départ est aujourd'hui et l'heure de départ >= heure actuelle
+        {
+          dateDepart: { $eq: now.toISOString().split('T')[0] }, // Comparer uniquement la date
+          heureDepart: { $gte: currentTimeInMinutes }, // Comparer l'heure actuelle
+        },
+      ],
+    });
+
+    // Si aucune offre n'est trouvée ou si elle est expirée
     if (!offre) {
-      throw new NotFoundError(`No offre with id ${OffreId}`);
+      throw new NotFoundError(`Aucune offre valide trouvée avec l'ID ${offreId}`);
     }
 
-    // Retourner l'offre directement
+    // Retourner l'offre
     res.status(StatusCodes.OK).json({ offre });
   } catch (error) {
+    console.error('Erreur lors de la récupération de l\'offre :', error);
     throw new InternalServerError('Erreur lors de la récupération de l\'offre');
   }
-};
+}
 
 
 

@@ -2,18 +2,8 @@ const Covoitureur = require('../models/Covoitureur');
 const Admin = require('../models/Admin');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
-const sendEmail = require('../utils/sendEmail'); // Fonction utilitaire pour envoyer des emails
+const sendEmail = require('../services/emailService'); // Fonction utilitaire pour envoyer des emails
 
-
-
-
-// Inscription d'un administrateur
-const registerAdmin = async (req, res) => {
-  const { name, email, password } = req.body;
-  const admin = await Admin.create({ name, email, password });
-  const token = admin.createJWT();
-  res.status(StatusCodes.CREATED).json({ admin: { name: admin.name }, token });
-};
 
 
 
@@ -28,11 +18,13 @@ const loginAdmin = async (req, res) => {
   }
 
   const admin = await Admin.findOne({ email });
+  console.log(admin)
   if (!admin) {
     throw new UnauthenticatedError('Identifiants invalides');
   }
 
   const isPasswordCorrect = await admin.comparePassword(password);
+  console.log(isPasswordCorrect)
   if (!isPasswordCorrect) {
     throw new UnauthenticatedError('Identifiants invalides');
   }
@@ -58,7 +50,7 @@ const handleCovoitureurValidation = async (req, res) => {
   if (action === 'accept') {
     covoitureur.isValidated = true; // Valider le covoitureur
     if (montantPaye) {
-      covoitureur.montant_paye += montantPaye; // Mettre à jour le montant payé si fourni
+      covoitureur.montant_payé += montantPaye; // Mettre à jour le montant payé si fourni
     }
     await covoitureur.save();
     return res.status(StatusCodes.OK).json({ message: 'Covoitureur validé avec succès' });
@@ -99,7 +91,7 @@ const handleOffreValidation = async (req, res) => {
   }
 
   if (action === 'accept') {
-    covoitureur.montant_paye += montantPaye; // Mettre à jour le montant payé
+    covoitureur.montant_payé += montantPaye; // Mettre à jour le montant payé
     await covoitureur.save();
     return res.status(StatusCodes.OK).json({ message: 'Montant mis à jour et demande acceptée' });
   }
@@ -126,4 +118,4 @@ const handleOffreValidation = async (req, res) => {
   throw new BadRequestError('Action non valide');
 }
 
-module.exports = { handleCovoitureurValidation, handleOffreValidation , registerAdmin, loginAdmin }
+module.exports = { handleCovoitureurValidation, handleOffreValidation , loginAdmin }
