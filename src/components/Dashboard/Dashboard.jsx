@@ -17,9 +17,15 @@ const Dashboard = () => {
   useEffect(() => {
     const name = localStorage.getItem('name');
     const email = localStorage.getItem('email');
+    const image = localStorage.getItem('image')
 
     if (name && email) {
+      if(!image){
       setPassenger({ name, email });
+      }
+      else{
+        setPassenger({ name, email,image });
+      }
     }
   }, []);
   return (

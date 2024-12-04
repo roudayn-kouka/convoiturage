@@ -99,7 +99,7 @@ const login = async (req, res) => {
 
     // Génération du JWT (token)
     const token = covoitureur.createJWT();
-    res.status(StatusCodes.OK).json({ covoitureur: { name: covoitureur.name }, token });
+    res.status(StatusCodes.OK).json({ covoitureur: { name: covoitureur.name,email:covoitureur.email,image:covoitureur.image }, token });
 
   } catch (error) {
     // Gestion des erreurs : si c'est une erreur spécifique, la relancer

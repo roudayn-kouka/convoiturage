@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, ChevronDown } from 'lucide-react';
+import { User, ChevronDown, Radius } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ passenger }) => {
@@ -41,8 +41,17 @@ const Navbar = ({ passenger }) => {
             <p className="user-email">{passenger.email}</p>
           </div>
           <div className="user-avatar">
-            <User className="user-icon" />
+            {passenger.image ? (
+              <img
+                src={passenger.image}
+                alt={passenger.name || "User Avatar"}
+                style={{ width: "40px", height: "40px", borderRadius: "20px" }}
+              />
+            ) : (
+                <User className="user-icon" />
+            )}
           </div>
+
 
           {/* Dropdown Menu */}
           <div

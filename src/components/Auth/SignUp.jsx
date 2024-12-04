@@ -98,8 +98,8 @@ const SignUp = () => {
 
             console.log('Registration successful:', response.data);
 
-            // Navigate to the dashboard
-            navigate('/dashboard');
+            // Navigate to the SignIn
+            navigate('/SignIn');
         } catch (error) {
             console.error('Error during registration:', error);
             alert('Registration failed. Please try again.');

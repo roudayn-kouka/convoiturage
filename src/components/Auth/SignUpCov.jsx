@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import './Auth.css';
 import Navbar from '../Navbar/Navbar';
 
@@ -14,6 +14,7 @@ const SignUp = () => {
   });
 
   const [errors, setErrors] = useState({});
+  // const navigate = useNavigate(); // Hook pour la redirection
   const [showPopup, setShowPopup] = useState(false); // État pour la popup
 
   const validateForm = () => {
@@ -124,7 +125,8 @@ const SignUp = () => {
       setShowPopup(true); // Affiche la popup
      
       console.log('Formulaire soumis avec succès :', formData);
-       
+       // Navigate to the SignInCov
+      //  navigate('/SignInCov');
     }
   };
 
