@@ -23,6 +23,19 @@ const Navbar = () => {
     localStorage.clear();
   };
 
+  const handleProfil = () => {
+    // Récupérer le rôle depuis localStorage
+    const role = localStorage.getItem('role');
+    
+    // Rediriger vers la page de connexion correspondante
+    if (role === 'passenger') {
+      window.location.href = '/dashboard/ProfilPass';
+    } else if (role === 'driver') {
+      window.location.href = '/dashboard/ProfilCond';
+    } 
+  
+  };
+
   return (
     <div className="navbar-container">
       <h2 className="navbar-title">Dashboard</h2>
@@ -49,8 +62,8 @@ const Navbar = () => {
             className={`dropdown-menu ${isDropdownOpen ? 'active' : ''}`}
             role="menu"
           >
-            <div className="dropdown-item" role="menuitem">
-              Profile
+            <div className="dropdown-item" role="menuitem" onClick={handleProfil}>
+              Profil
             </div>
            
             <div className="dropdown-item" role="menuitem" onClick={handleLogout}>

@@ -19,7 +19,8 @@ export default function CreateRide() {
   const [fromCities, setFromCities] = useState([]);
   const [toCities, setToCities] = useState([]);
   const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [Message, setMessage] = useState('');
+  const [alertType, setAlertType] = useState(''); // Nouveau state pour le type d'alerte
 
   useEffect(() => {
     if (formData.fromGov) {
@@ -81,8 +82,21 @@ export default function CreateRide() {
 
     if (validateFSTLocation() && validateDate()) {
       console.log(formData);
-      // Affichage de l'alerte de succès
-      setSuccessMessage('Le trajet a été créé avec succès!');
+      const mssg= "Le trajet a été créé avec succès!"//badlou bel mssg ili bch traja3houlk fl response mtaa api taa addoffre (saret l'insertion trajaa mssg de succès sinon kn montant payé insuffisant matssirch l insertion donc bch traje3lk mssg d'erreur)
+      if(mssg=="Le trajet a été créé avec succès!")
+      {
+         // Affichage de l'alerte de succès
+         setMessage('Le trajet a été créé avec succès!');
+         setAlertType('success'); // Type d'alerte succès (vert)
+
+      } else if(mssg=="Votre montant payé est insuffisant. Veuillez le régler à nouveau.")
+      {
+        // Affichage de l'alerte d'erreur.
+        setMessage('Votre montant payé est insuffisant. Veuillez le régler à nouveau.');
+        setAlertType('error'); // Type d'alerte erreur (rouge)
+
+      }
+      
       // Réinitialisation des champs du formulaire
       setTimeout(() => {
         setFormData({
@@ -98,7 +112,7 @@ export default function CreateRide() {
           toCity: '',
           gender: ''
         });
-        setSuccessMessage('');
+        setMessage('');
       }, 3000); // L'alerte disparaît après 3 secondes
     }
   };
@@ -277,9 +291,11 @@ export default function CreateRide() {
           </div>
         )}
 
-        {successMessage && (
-          <div className="alert alert-success mb-3">
-            {successMessage}
+        {Message && (
+          <div className={`alert mb-3 ${
+            alertType === 'success' ? 'alert-success' : 'alert-danger'
+          }`}>
+            {Message}
           </div>
         )}
 

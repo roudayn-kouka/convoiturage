@@ -3,7 +3,7 @@ import { Star, Phone, Luggage, MapPin, Users, X } from "lucide-react";
 import { Modal, Button } from "react-bootstrap";
 
 const mockTrips = [
-  {
+  { id:"1",
     driver: "Sophie Martin",
     driverImage:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
@@ -23,6 +23,7 @@ const mockTrips = [
   },
   
   {
+    id:"21",
     driver: "Samia Aissa",
     driverImage:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
@@ -41,6 +42,7 @@ const mockTrips = [
     rating: 3,
   },
   {
+    id:"3",
     driver: "Ahmed Ben Ali",
     driverImage:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
@@ -59,6 +61,7 @@ const mockTrips = [
     rating: null,
   },
   {
+    id:"14",
     driver: "Leila Trabelsi",
     driverImage:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
@@ -80,12 +83,12 @@ const mockTrips = [
 
 function ReservationsList() {
   const [trips, setTrips] = useState(mockTrips);
-  const [showModal, setShowModal] = useState(false);
+  //const [showModal, setShowModal] = useState(false);
   const [showModifyModal, setShowModifyModal] = useState(false); // Nouvel état pour le modal de modification
-  const [modalContent, setModalContent] = useState(null);
+  //const [modalContent, setModalContent] = useState(null);
   const [cancelConfirm, setCancelConfirm] = useState({});
   const [selectedTripIndex, setSelectedTripIndex] = useState(null);
-  const [modifiedSeats, setModifiedSeats] = useState(1); // État pour le nombre de places modifié
+  const [modifiedSeats, setModifiedSeats] = useState(1); // Nombre de places réservées
   const [availableSeats, setAvailableSeats] = useState(0); // Nombre de places disponibles
 
   const getStatusClass = (status) => {
@@ -109,60 +112,58 @@ function ReservationsList() {
         return "Confirmée";
       case "pending":
         return "En attente";
-      default:
-        return "Inconnu";
+     
     }
   };
 
   const handleRate = (index, value) => {
+
+    const updatedTrip = { ...trips[index], rating: value };
+
     setTrips((prevTrips) =>
       prevTrips.map((trip, i) =>
-        i === index ? { ...trip, rating: value } : trip
+        i === index ? updatedTrip : trip
       )
     );
-    console.log(`Trajet ${index} noté ${value} étoiles.`);
+    console.log(`Trajet ${index} noté ${updatedTrip.rating} étoiles.`);
+    console.log(updatedTrip);
+
   };
 
-  const handleCancelClick = (index, isConfirmed) => {
-    if (isConfirmed) {
-      setModalContent("Les réservations confirmées ne peuvent pas être annulées.");
-      setShowModal(true);
-    } else {
+
+
+  const handleCancelClick = (index) => {
+    
+     
       setCancelConfirm((prev) => ({
         ...prev,
         [index]: true,
       }));
-    }
+    
   };
 
-  const handleModifyClick = (index, isConfirmed) => {
-    if (isConfirmed) {
-      setModalContent("Les réservations confirmées ne peuvent pas être modifiées.");
-      setShowModal(true);
-    } else {
+  const handleModifyClick = (index) => {
+  
       const trip = trips[index];
       setSelectedTripIndex(index);
-      setModifiedSeats(trip.seatsr); // Pré-remplir avec le nombre de places actuelles
+      setModifiedSeats(trip.seatsr); // Pré-remplir avec le nombre de places réservées
       setAvailableSeats(trip.seats); // Le nombre de places disponibles est égal au nombre de places actuelles
       setShowModifyModal(true); // Affiche le modal de modification
-    }
+    
   };
 
   const handleCancelConfirm = (index) => {
-    setTrips((prevTrips) =>
-      prevTrips.map((trip, i) =>
-        i === index ? { ...trip, status: "canceled" } : trip
-      )
-      
-    );
+    console.log(trips[index].id)
+    console.log(index)
     console.log("reservation supprimée")
     setCancelConfirm((prev) => ({ ...prev, [index]: false }));
   };
 
   const handleModifyModalClose = () => setShowModifyModal(false); // Ferme le modal de modification
-  const handleModalClose = () => setShowModal(false);
+  //const handleModalClose = () => setShowModal(false);
   const handleSaveModify = (e) => {
     e.preventDefault();
+
     // Validation du nombre de places modifiées
     if (modifiedSeats > availableSeats) {
       alert("Le nombre de places réservées ne peut pas dépasser le nombre de places disponibles.");
@@ -276,7 +277,7 @@ function ReservationsList() {
                       <div className="d-flex justify-content-between">
                         <button
                           onClick={() =>
-                            handleCancelClick(index, trip.status === "confirmed")
+                            handleCancelClick(index)
                           }
                           className="btn btn-outline-danger"
                         >
@@ -284,7 +285,7 @@ function ReservationsList() {
                         </button>
                         <button
                           onClick={() =>
-                            handleModifyClick(index, trip.status === "confirmed")
+                            handleModifyClick(index)
                           }
                           className="btn btn-outline-primary"
                         >
@@ -316,7 +317,7 @@ function ReservationsList() {
       </div>
 
       {/* Modal d'alerte général */}
-      <Modal show={showModal} onHide={handleModalClose}>
+       {/* <Modal show={showModal} onHide={handleModalClose}>
         <Modal.Header closeButton>
           <Modal.Title>Avertissement</Modal.Title>
         </Modal.Header>
@@ -330,7 +331,8 @@ function ReservationsList() {
         Ok
       </button>
         </Modal.Footer>
-      </Modal>
+      </Modal> */}
+
 
        {/* Modal de modification */}
 

@@ -10,7 +10,7 @@ export default function RideCard({ offer }) {
   const handleBooking = (e) => {
     e.preventDefault();
     console.log(`Booking ${reservedSeats} seats for ride ${offer.driver}`);
-
+  
     // Déclenche la confirmation
     setBookingConfirmed(true);
 
@@ -125,7 +125,7 @@ export default function RideCard({ offer }) {
             </div>
             {bookingConfirmed ? (
               <div className="alert alert-success text-center">
-                <strong>Réservation confirmée pour ce trajet !</strong> Veuillez attendre une confirmation envoyée par email.
+                <strong>La demande de réservation a été effectuée pour ce trajet !</strong> Veuillez attendre une confirmation envoyée par email.
               </div>
             ) : (
               <form onSubmit={handleBooking}>

@@ -27,11 +27,25 @@ const Sidebar = () => {
 
   // Menu items pour passager
   const passengerMenuItems = [
-    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/' },
+    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/Rechercher' },
     { icon: CalendarCheck, text: 'Mes réservations', path: '/dashboard/reservations' },
   ];
   // Choisir les items en fonction du rôle
   const menuItems = role === 'driver' ? driverMenuItems : passengerMenuItems;
+
+  const handleLogout = () => {
+    // Récupérer le rôle depuis localStorage
+    const role = localStorage.getItem('role');
+    
+    // Rediriger vers la page de connexion correspondante
+    if (role === 'passenger') {
+      window.location.href = '/signin';
+    } else if (role === 'driver') {
+      window.location.href = '/signincov';
+    } 
+    // Optionnel : Effacer les données de session/localStorage
+    localStorage.clear();
+  };
   return (
     <div className="sidebar-container">
       {/* Sidebar Header */}
@@ -61,7 +75,7 @@ const Sidebar = () => {
 
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
-        <button className="logout-btn">
+        <button className="logout-btn" onClick={handleLogout}>
           <LogOut className="logout-icon" />
           <span>Logout</span>
         </button>
