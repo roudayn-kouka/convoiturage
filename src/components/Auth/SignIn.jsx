@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate  } from 'react-router-dom';
 import './Auth.css';
 import Navbar from '../Navbar/Navbar';
+import axios from 'axios';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -51,20 +52,30 @@ const SignIn = () => {
     setRememberMe(e.target.checked);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (validateForm()) {
-      if (rememberMe) {
-        localStorage.setItem('email', formData.email); // Sauvegarder l'email dans localStorage
-      } else {
-        localStorage.removeItem('email'); // Si "Se souvenir de moi" n'est pas coché, supprimer l'email
-      }
-       // Sauvegarder le rôle dans localStorage
-       localStorage.setItem('role', "passenger");
-      // Logique pour soumettre le formulaire
-      console.log('Form submitted successfully:', formData);
-        // Redirection vers le tableau de bord
+      try {
+        const response = await axios.post('http://localhost:3000/api/v1/auth_passenger/login', formData);
+  
+        // Store the JWT in localStorage
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('role', "passenger");
+        localStorage.setItem('name', response.data.passenger.name);
+        localStorage.setItem('email', response.data.passenger.email);
+  
+        // Optionally save role if needed
+        localStorage.setItem('role', "passenger");
+  
+        console.log('Connexion réussie:', response.data);
+  
+        // Redirect to the dashboard
         navigate('/dashboard');
+      } catch (error) {
+        console.error('Erreur lors de la connexion:', error.response?.data?.message || error.message);
+        setErrors({ general: error.response?.data?.message || 'Une erreur est survenue.' });
+      }
     }
   };
 

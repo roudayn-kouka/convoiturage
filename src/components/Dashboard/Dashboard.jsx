@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate  } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import './Dashboard.css'; // Assurez-vous de lier votre fichier CSS
@@ -16,13 +16,30 @@ const Dashboard = () => {
   const navigate = useNavigate();
 const role = localStorage.getItem('role'); // Récupère le rôle depuis le stockage local
 
+  const [passenger, setPassenger] = useState({ name: '', email: '' });
+
+  // Fetch user info from localStorage
+  useEffect(() => {
+    const name = localStorage.getItem('name');
+    const email = localStorage.getItem('email');
+    const image = localStorage.getItem('image')
+
+    if (name && email) {
+      if(!image){
+      setPassenger({ name, email });
+      }
+      else{
+        setPassenger({ name, email,image });
+      }
+    }
+  }, []);
   return (
    
       <div className="dashboard-container">
         <Sidebar />
         
         <div className="content-container">
-          <Navbar />
+          <Navbar passenger={passenger}/>
 
           <main className="main-content">
             <Routes>

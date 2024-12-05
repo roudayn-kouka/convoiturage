@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { User, ChevronDown } from 'lucide-react';
+import { User, ChevronDown, Radius } from 'lucide-react';
 import './Navbar.css';
 
-const Navbar = () => {
+const Navbar = ({ passenger }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -49,13 +49,22 @@ const Navbar = () => {
         >
           <div className="user-details">
             <p className="user-name">
-              John Doe <ChevronDown className="arrow-icon" />
+            {passenger.name} <ChevronDown className="arrow-icon" />
             </p>
-            <p className="user-email">john.doe@example.com</p>
+            <p className="user-email">{passenger.email}</p>
           </div>
           <div className="user-avatar">
-            <User className="user-icon" />
+            {passenger.image ? (
+              <img
+                src={passenger.image}
+                alt={passenger.name || "User Avatar"}
+                style={{ width: "40px", height: "40px", borderRadius: "20px" }}
+              />
+            ) : (
+                <User className="user-icon" />
+            )}
           </div>
+
 
           {/* Dropdown Menu */}
           <div

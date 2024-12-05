@@ -1,0 +1,27 @@
+const villesParGouvernorat = {
+    'Ariana': ['Ariana Ville', 'Soukra', 'Raoued', 'Kalaat El Andalous', 'Mnihla', 'Sidi Thabet'],
+    'Béja': ['Béja Nord', 'Béja Sud', 'Nefza', 'Téboursouk', 'Testour', 'Goubellat', 'Medjez El Bab'],
+    'Ben Arous': ['Ben Arous', 'Radès', 'Hammam Lif', 'Mourouj', 'Fouchana', 'Mornag', 'Ezzahra', 'Mégrine', 'Hammam Chott'],
+    'Bizerte': ['Bizerte Nord', 'Bizerte Sud', 'Menzel Bourguiba', 'Menzel Jemil', 'Ras Jebel', 'Ghar El Melh', 'El Alia', 'Sejnane', 'Joumine', 'Mateur', 'Tinja'],
+    'El Kef': ['El Kef', 'Dahmani', 'Tajerouine', 'Kalaat Khasba', 'Kalaat Senan', 'Nebeur', 'Touiref', 'Sakiet Sidi Youssef'],
+    'Gabès': ['Gabès Ville', 'Gabès Sud', 'Ghannouch', 'Métouia', 'Mareth', 'El Hamma', 'Matmata'],
+    'Gafsa': ['Gafsa Ville', 'Métlaoui', 'Mdhilla', 'Redeyef', 'El Guettar', 'Sidi Aich', 'Sened'],
+    'Jendouba': ['Jendouba Ville', 'Bou Salem', 'Tabarka', 'Aïn Draham', 'Ghardimaou', 'Fernana', 'Balta Bou Aouane'],
+    'Kairouan': ['Kairouan Ville', 'Haffouz', 'Oueslatia', 'Bou Hajla', 'Sbikha', 'Cherarda'],
+    'Kasserine': ['Kasserine Ville', 'Sbeitla', 'Feriana', 'Thala', 'Foussana', 'Hassi El Ferid', 'Sbiba'],
+    'Kebili': ['Kebili Ville', 'Douz', 'Souk Lahad', 'El Faouar'],
+    'Mahdia': ['Mahdia Ville', 'Ksour Essef', 'Chebba', 'El Jem', 'Bou Merdes', 'Hebira'],
+    'Manouba': ['Manouba Ville', 'Douar Hicher', 'Oued Ellil', 'Tebourba', 'Borj El Amri', 'El Battan'],
+    'Medenine': ['Medenine Ville', 'Zarzis', 'Djerba Houmt Souk', 'Djerba Midoun', 'Djerba Ajim', 'Ben Guerdane', 'Beni Khedache'],
+    'Monastir': ['Monastir Ville', 'Sahline', 'Moknine', 'Jemmal', 'Ksibet El Mediouni', 'Ksar Hellal', 'Bembla'],
+    'Nabeul': ['Nabeul Ville', 'Hammamet', 'Korba', 'Kelibia', 'Menzel Temime', 'Grombalia', 'Dar Chaabane', 'Soliman'],
+    'Sfax': ['Sfax Ville', 'Sakiet Ezzit', 'Sakiet Eddaier', 'El Ain', 'Agareb', 'Menzel Chaker', 'Bir Ali Ben Khalifa'],
+    'Sidi Bouzid': ['Sidi Bouzid Ville', 'Meknassy', 'Bir El Hafey', 'Jelma', 'Menzel Bouzaiane', 'Regueb'],
+    'Siliana': ['Siliana Ville', 'Makthar', 'El Krib', 'Kesra', 'Bou Arada', 'Gaafour', 'Rouhia'],
+    'Sousse': ['Sousse Ville', 'Akouda', 'Hammam Sousse', 'Msaken', 'Kantaoui', 'Enfidha', 'Hergla'],
+    'Tataouine': ['Tataouine Ville', 'Remada', 'Ghomrassen', 'Dhehiba', 'Bir Lahmar'],
+    'Tozeur': ['Tozeur Ville', 'Nefta', 'Degache', 'Tameghza', 'Hazoua'],
+    'Tunis': ['Tunis Centre', 'La Marsa', 'Carthage', 'Le Kram', 'Bab Souika', 'Bab El Bhar', 'Sidi Hassine','FST'],
+    'Zaghouan': ['Zaghouan Ville', 'Zriba', 'Bir Mcherga', 'El Fahs', 'Nadhour', 'Saouaf']
+  };
+  

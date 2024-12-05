@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate  } from 'react-router-dom';
 import './Auth.css';
 import Navbar from '../Navbar/Navbar';
-
+import axios from 'axios';
 const SignUp = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -86,17 +86,32 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-       // Sauvegarder le rôle dans localStorage
-       localStorage.setItem('role', "passenger");
-      // Logique pour l'envoi des données
-      console.log('Form submitted successfully:', formData);
-        // Redirection vers le tableau de bord
-        navigate('/dashboard');
+        try {
+            // Save the role in localStorage
+            localStorage.setItem('role', 'passenger');
+          
+            // Send data to backend
+            const response = await fetch('http://localhost:3000/api/v1/auth_passenger/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    });
+
+            console.log('Registration successful:', response.data);
+
+            // Navigate to the SignIn
+            navigate('/SignIn');
+        } catch (error) {
+            console.error('Error during registration:', error);
+            alert('Registration failed. Please try again.');
+        }
     }
-  };
+};
 
   return (
     <div>
