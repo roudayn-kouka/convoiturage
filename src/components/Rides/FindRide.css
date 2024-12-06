@@ -94,6 +94,33 @@
   cursor: not-allowed;
 }
 
+.reset-button {
+  width: 15%;
+  padding: 12px 16px; /* py-3 px-4 */
+  border-radius: 8px; /* rounded-lg */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* gap-2 */
+  margin-top:2%;
+ 
+}
+
+.reset-button.enabled {
+  background-color: #10b981; /* bg-emerald-600 */
+  color: #ffffff;
+}
+
+.reset-button.enabled:hover {
+  background-color: #059669; /* hover:bg-emerald-700 */
+}
+
+.reset-button.disabled {
+  background-color: #d1d5db; /* bg-gray-300 */
+  color: #6b7280; /* text-gray-500 */
+  cursor: not-allowed;
+}
+
 /* Message d'erreur */
 .error-message {
   margin-top: 16px; /* mt-4 */
@@ -115,3 +142,4 @@
   font-weight: 600;
   color: #4b5563; /* text-gray-700 */
 }
+

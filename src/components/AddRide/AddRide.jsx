@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { governorates, cities } from '../../Data/locations';
-
-export default function CreateRide() {
+import axios from 'axios';
+export default function CreateRide({ passenger }) {
   const [formData, setFormData] = useState({
     phone: '',
-    hasBaggage: '',
     price: '',
+    date: '',
     time: '',
-    date: '', 
-    seats: '1',
+    seats: 1,
+    hasBaggage: 'sans bagage',
+    gender: 'Femme',
     fromGov: '',
     fromCity: '',
     toGov: '',
     toCity: '',
-    gender: ''
   });
+  
 
   const [fromCities, setFromCities] = useState([]);
   const [toCities, setToCities] = useState([]);
@@ -38,7 +39,7 @@ export default function CreateRide() {
     const hasFSTArrival = formData.toGov === 'Tunis' && formData.toCity === 'FST';
     
     if (!hasFSTDeparture && !hasFSTArrival) {
-      setFormError('Le trajet doit inclure FST (Tunis) comme point de départ ou d\'arrivée');
+      
       return false;
     }
     setFormError('');
@@ -51,7 +52,7 @@ export default function CreateRide() {
     today.setHours(0, 0, 0, 0); // Ignore l'heure pour comparer les dates
 
     if (selectedDate < today) {
-      setFormError('La date doit être aujourd\'hui ou dans le futur.');
+      
       return false;
     }
     return true;
@@ -66,7 +67,7 @@ export default function CreateRide() {
     return !isNaN(price) && price > 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (!validatePhone(formData.phone)) {
@@ -78,13 +79,42 @@ export default function CreateRide() {
       setFormError('Le prix doit être un nombre valide.');
       return;
     }
+    if (!validateDate()) {
+      setFormError('La date doit être aujourd\'hui ou dans le futur.');
+      return
+    }
+    if (!validateFSTLocation()) {
+      setFormError('Le trajet doit inclure FST (Tunis) comme point de départ ou d\'arrivée');
+      return
+    }
+    
 
-    if (validateFSTLocation() && validateDate()) {
-      console.log(formData);
-      // Affichage de l'alerte de succès
-      setSuccessMessage('Le trajet a été créé avec succès!');
-      // Réinitialisation des champs du formulaire
-      setTimeout(() => {
+    try {
+    const token = passenger.token; 
+    
+    const response = await axios.post(
+      'http://localhost:3000/api/v1/offre/creation', 
+      {
+        gouvernorat_arrivée: formData.toGov,
+        lieu_arrivée: formData.toCity,
+        gouvernorat_depart: formData.fromGov,
+        lieu_depart: formData.fromCity,
+        dateDepart: formData.date,
+        heureDepart: formData.time,
+        phoneNumber: formData.phone,
+        bagage: formData.hasBaggage,
+        nombreplacedisponible: formData.seats,
+        genre: formData.gender,
+        prixparplace: formData.price,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token for authentication
+        },
+      }
+    );
+
+    setSuccessMessage(response.data.message);
         setFormData({
           phone: '',
           hasBaggage: '',
@@ -98,9 +128,32 @@ export default function CreateRide() {
           toCity: '',
           gender: ''
         });
-        setSuccessMessage('');
-      }, 3000); // L'alerte disparaît après 3 secondes
+  } catch (error) {
+    console.error('Error creating offer:', error);
+    setFormError(error.response?.data?.message || 'Erreur inconnue.');
     }
+    // if (validateFSTLocation() && validateDate()) {
+    //   console.log(formData);
+    //   // Affichage de l'alerte de succès
+    //   setSuccessMessage('Le trajet a été créé avec succès!');
+    //   // Réinitialisation des champs du formulaire
+    //   setTimeout(() => {
+    //     setFormData({
+    //       phone: '',
+    //       hasBaggage: '',
+    //       price: '',
+    //       time: '',
+    //       date: '', 
+    //       seats: '1',
+    //       fromGov: '',
+    //       fromCity: '',
+    //       toGov: '',
+    //       toCity: '',
+    //       gender: ''
+    //     });
+    //     setSuccessMessage('');
+    //   }, 3000); // L'alerte disparaît après 3 secondes
+    // }
   };
 
   return (
@@ -195,10 +248,9 @@ export default function CreateRide() {
                 className="form-select"
                 required
               >
-                <option value="">Sélectionner</option>
-                <option value="fille">Fille</option>
-                <option value="garçon">Garçon</option>
-                <option value="fille&garçon">Fille & Garçon</option>
+                <option value="Femme" selected>Femme</option>
+                <option value="Homme">Homme</option>
+                <option value="Homme et Femme">Homme et Femme</option>
 
               </select>
             </div>

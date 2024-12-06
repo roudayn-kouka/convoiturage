@@ -1,30 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import { governorates, cities } from '../../Data/locations';
-import './FindRide.css';
+import React, { useState, useEffect } from "react";
+import { Search } from "lucide-react";
+import { governorates, cities } from "../../Data/locations";
+import "./FindRide.css";
 
-const SearchRides = ({ onSearch }) => {
-  const [fromGov, setFromGov] = useState('');
-  const [toGov, setToGov] = useState('');
-  const [fromCity, setFromCity] = useState('');
-  const [toCity, setToCity] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
+const FindRide = ({ onSearch }) => {
+  const [fromGov, setFromGov] = useState("");
+  const [toGov, setToGov] = useState("");
+  const [fromCity, setFromCity] = useState("");
+  const [toCity, setToCity] = useState("");
+  const [genderFilter, setGenderFilter] = useState("Femme");
   const [isValid, setIsValid] = useState(false);
   const [allFieldsFilled, setAllFieldsFilled] = useState(false);
 
   useEffect(() => {
-    const allFieldsAreFilled = fromGov && toGov && fromCity && toCity && genderFilter;
+    const allFieldsAreFilled = fromGov && toGov && fromCity && toCity;
     setAllFieldsFilled(allFieldsAreFilled);
 
     const isFSTConditionMet =
-      (fromGov === 'Tunis' && fromCity === 'FST') || (toGov === 'Tunis' && toCity === 'FST');
+      (fromGov === "Tunis" && fromCity === "FST") ||
+      (toGov === "Tunis" && toCity === "FST");
     setIsValid(isFSTConditionMet);
-  }, [fromGov, toGov, fromCity, toCity, genderFilter]);
+  }, [fromGov, toGov, fromCity, toCity]);
 
   const handleSearch = () => {
-    if (isValid && allFieldsFilled) {
-      onSearch({ fromGov, fromCity, toGov, toCity, genderFilter });
-    }
+    // Construct filter object
+    const filters = {
+      fromGov,
+      fromCity,
+      toGov,
+      toCity,
+      genderFilter: genderFilter || null, // Include gender filter only if selected
+    };
+
+    // Pass filters to RideOffers
+    onSearch(filters);
+  };
+
+  const handleReset = () => {
+    setFromGov("");
+    setToGov("");
+    setFromCity("");
+    setToCity("");
+    setGenderFilter("");
+    onSearch(null); // Reset the filtered offers
   };
 
   return (
@@ -42,7 +60,7 @@ const SearchRides = ({ onSearch }) => {
                 value={fromGov}
                 onChange={(e) => {
                   setFromGov(e.target.value);
-                  setFromCity('');
+                  setFromCity("");
                 }}
                 className="form-select"
               >
@@ -83,7 +101,7 @@ const SearchRides = ({ onSearch }) => {
                 value={toGov}
                 onChange={(e) => {
                   setToGov(e.target.value);
-                  setToCity('');
+                  setToCity("");
                 }}
                 className="form-select"
               >
@@ -124,10 +142,10 @@ const SearchRides = ({ onSearch }) => {
             onChange={(e) => setGenderFilter(e.target.value)}
             className="form-select"
           >
-            <option value="">Sélectionnez le genre</option>
-            <option value="fille">Fille</option>
-            <option value="garçon">Garçon</option>
-            <option value="fille&garçon">Fille & Garçon</option>
+           
+            <option value="Femme">Femme</option>
+            <option value="Homme">Homme</option>
+            <option value="Homme et Femme">Homme et Femme</option>
           </select>
         </div>
 
@@ -135,17 +153,22 @@ const SearchRides = ({ onSearch }) => {
           <p className="error-message">Au moins un point doit être Tunis/FST</p>
         )}
 
-        <button
-          disabled={!isValid || !allFieldsFilled}
-          onClick={handleSearch}
-          className={`search-button ${isValid && allFieldsFilled ? 'enabled' : 'disabled'}`}
-        >
-          <Search className="me-2" />
-          Rechercher des trajets
-        </button>
+        <div className="buttons-container">
+          <button
+            disabled={!isValid || !allFieldsFilled}
+            onClick={handleSearch}
+            className={`search-button ${isValid && allFieldsFilled ? "enabled" : "disabled"}`}
+          >
+            <Search className="me-2" />
+            Rechercher
+          </button>
+          <button onClick={handleReset} className={`reset-button ${!isValid && !allFieldsFilled ? "disabled" : ""}`}>
+            Réinitialiser
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SearchRides;
+export default FindRide;

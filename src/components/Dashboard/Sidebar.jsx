@@ -27,7 +27,7 @@ const Sidebar = () => {
 
   // Menu items pour passager
   const passengerMenuItems = [
-    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/' },
+    { icon: Search, text: 'Rechercher des trajets', path: '/dashboard/all-rides' },
     { icon: CalendarCheck, text: 'Mes réservations', path: '/dashboard/reservations' },
   ];
   // Choisir les items en fonction du rôle

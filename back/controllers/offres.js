@@ -14,10 +14,10 @@ const getAllOffresco = async (req, res) => {
     const offres = await Offre.find({ createdBy: req.user.userId });
 
     // Retourner les résultats
-    res.status(StatusCodes.OK).json({ offres, count: offres.length });
+    res.status(StatusCodes.OK).json({message: 'Offres récupérées avec succès.', offres, count: offres.length });
   } catch (error) {
-    console.error('Erreur lors de la récupération des offres :', error);
-    throw new InternalServerError('Erreur lors de la récupération des offres');
+    console.error('Error retrieving user offers:', error.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la récupération des offres.', error: error.message });
   }
 }
 
@@ -28,31 +28,69 @@ const getAllOffresco = async (req, res) => {
 
 const getAllOffres = async (req, res) => {
   try {
-    const now = new Date(); // La date et l'heure actuelles
+    const now = new Date();
+    const currentDateISO = now.toISOString(); // Current date and time in ISO format
+    const currentDateOnly = now.toISOString().split("T")[0]; // Current date (YYYY-MM-DD)
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); // Current time in minutes
 
-    // Calculer l'heure actuelle en minutes
-    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-
-    // Récupérer les offres où la date de départ et l'heure de départ sont supérieures ou égales à l'heure actuelle
-    const offres = await Offre.find({
-      $or: [
-        // Offres dont la date de départ est après aujourd'hui
-        { dateDepart: { $gt: now } },
-
-        // Offres dont la date de départ est aujourd'hui et l'heure de départ >= heure actuelle
-        {
-          dateDepart: { $eq: now.toISOString().split('T')[0] }, // Comparer seulement la date sans l'heure
-          heureDepart: { $gte: currentTimeInMinutes }, // Comparer l'heure et les minutes actuelles
+    const offres = await Offre.aggregate([
+      {
+        $addFields: {
+          // Calculate total minutes for heureDepart
+          heureDepartInMinutes: {
+            $add: [
+              {
+                $multiply: [
+                  { $toInt: { $arrayElemAt: [{ $split: ["$heureDepart", ":"] }, 0] } }, // Extract and convert hours to minutes
+                  60,
+                ],
+              },
+              { $toInt: { $arrayElemAt: [{ $split: ["$heureDepart", ":"] }, 1] } }, // Extract and convert minutes
+            ],
+          },
         },
-      ],
+      },
+      {
+        $match: {
+          $or: [
+            // Case 1: Today's offers where heureDepart > current time
+            {
+              $and: [
+                { dateDepart: { $eq: new Date(currentDateOnly) } },
+                { heureDepartInMinutes: { $gt: currentTimeInMinutes } },
+              ],
+            },
+            // Case 2: Future offers
+            { dateDepart: { $gt: new Date(currentDateISO) } },
+          ],
+        },
+      },
+    ]);
+
+    // Enrich each offer with Covoitureur details
+    const offresWithCovoitureur = await Promise.all(
+      offres.map(async (offre) => {
+        const covoitureur = await Covoitureur.findById(offre.createdBy, "name image");
+        return {
+          ...offre,
+          covoitureur, // Attach covoitureur details
+        };
+      })
+    );
+
+    // Return the results
+    res.status(200).json({
+      offres: offresWithCovoitureur,
+      count: offresWithCovoitureur.length,
     });
-    // Retourner les résultats
-    res.status(StatusCodes.OK).json({ offres, count: offres.length });
   } catch (error) {
-    console.error('Erreur lors de la récupération des offres :', error);
-    throw new InternalServerError('Erreur lors de la récupération des offres');
+    console.error("Erreur lors de la récupération des offres:", error);
+    res.status(500).json({ message: "Erreur lors de la récupération des offres." });
   }
-}
+};
+
+
+
 
 
 
@@ -63,22 +101,20 @@ const getAllOffres = async (req, res) => {
 
 const getOffreco = async (req, res) => {
   try {
-    const {
-      user: { userId }, // id de covoitureur
-      params: { id: OffreId }, // id de l'offre
-    } = req;
+    const { id: OffreId } = req.params;
 
     const offre = await Offre.findOne({
       _id: OffreId,
-      createdBy: userId,
+      createdBy: req.user.userId
     });
     if (!offre) {
-      throw new NotFoundError(`No offre with id ${OffreId}`);
+      return res.status(404).json({ message: 'Offer not found' });
     }
   // Retourner l'offre directement
-    res.status(StatusCodes.OK).json({ offre });
+    res.status(StatusCodes.OK).json({ message: "offer found",offre });
   } catch (error) {
-    throw new InternalServerError('Erreur lors de la récupération de l\'offre');
+    console.error('Error finding offer:', error);
+    res.status(500).json({ message: 'Error finding the offer', error: error.message });
   }
 }
 
@@ -142,13 +178,17 @@ const ajusterGouvernoratEtLieu = (offre) => {
 const createOffre = async (req, res) => {
   try {
     // Ajout de l'utilisateur créateur de l'offre
-    req.body.createdBy = req.user.userId;
+    // req.body.createdBy = req.user.userId;
 
-    const { prixparplace, nombreplacerestant, phoneNumber } = req.body;
-
+    const { 
+      gouvernorat_arrivée, lieu_arrivée, gouvernorat_depart, lieu_depart, 
+      dateDepart, heureDepart, phoneNumber, bagage, nombreplacedisponible, 
+      genre, prixparplace 
+    } = req.body;
+    const nombreplacerestant=nombreplacedisponible
     // Vérifier si les champs nécessaires sont fournis
-    if (!prixparplace || !nombreplacerestant) {
-      throw new BadRequestError('Le prix par place et le nombre de places restantes sont requis.');
+    if (!prixparplace ) {
+      throw new BadRequestError('Le prix par place est requis.');
     }
 
     // Récupérer les informations du covoitureur
@@ -158,7 +198,7 @@ const createOffre = async (req, res) => {
     }
 
     // Montant payé actuel par le covoitureur
-    const montantPaye = covoitureur.montant_paye
+    const montantPaye = covoitureur.montant_payé
 
     // Calcul de la commission minimale requise
     const commissionMinimale = 0.2 * nombreplacerestant * prixparplace;
@@ -189,22 +229,38 @@ const createOffre = async (req, res) => {
 
       // Retourner une réponse pour empêcher la création de l'offre
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Le montant payé est insuffisant. L\'offre ne peut pas être créée.',
+        message: 'Le montant payé est insuffisant. L\'offre ne peut pas être créée.Veuillez contacter l\'admin sur le numero : 23074149  ',
       });
     }
 
     // Ajuster le gouvernorat et le lieu si nécessaire
-    const dataoffre = ajusterGouvernoratEtLieu(req.body);
+    // const dataoffre = ajusterGouvernoratEtLieu(req.body);
 
     // Créer l'offre
-    const offre = await Offre.create(dataoffre);
+    const offer = new Offre({
+      gouvernorat_arrivée,
+      lieu_arrivée,
+      gouvernorat_depart,
+      lieu_depart,
+      dateDepart,
+      heureDepart,
+      phoneNumber,
+      bagage,
+      nombreplacedisponible,
+      nombreplacerestant,
+      genre,
+      prixparplace,
+      createdBy: req.user.userId, // User ID from middleware
+    });
 
-    res.status(StatusCodes.CREATED).json({ offre });
+    await offer.save();
+
+    res.status(StatusCodes.CREATED).json({message: 'Offre créée avec succès.', offer });
   } catch (error) {
-    console.error(error);
-    throw new InternalServerError("Erreur lors de la création de l'offre");
+    console.error('Error creating offer:', error.message);
+    res.status(500).json({ message: 'Erreur lors de la création de l\'offre.', error: error.message });
   }
-}
+};
 
 
 
@@ -213,24 +269,23 @@ const createOffre = async (req, res) => {
 
  const updateOffre = async (req, res) => {
   try {
-    const {
-      user: { userId },
-      params: { id: OffreID },
-    } = req;
-
-    const dataoffre = ajusterGouvernoratEtLieu(req.body);
-    const offre = await Offre.findByIdAndUpdate({ _id: OffreID, createdBy: userId }, dataoffre, {
+    const { id: OffreID }=req.params;
+    const offre = await Offre.findByIdAndUpdate({ _id: OffreID, createdBy: req.user.userId }, req.body, {
       new: true,
       runValidators: true,
     });
 
     if (!offre) {
-      throw new NotFoundError(`No offre with id ${OffreID}`);
+      return res.status(404).json({ message: 'Offer not found' });
     }
-    res.status(StatusCodes.OK).json({ offre });
+    if (offre.createdBy.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'You are not authorized to modify this offer' });
+    }
+    res.status(StatusCodes.OK).json({ message: 'Offer updated successfully',offre });
 
   } catch (error) {
-    throw new InternalServerError('Erreur lors de la mise à jour de l\'offre');
+    console.error('Error updating offer:', error);
+    res.status(500).json({ message: 'Error updating the offer', error: error.message });
   }
 };
 
@@ -240,20 +295,17 @@ const createOffre = async (req, res) => {
 
 const deleteOffre = async (req, res) => {
   try {
-    const {
-      params: { id: OffreID },
-      user: { userId },
-    } = req;
+    const { id: OffreID }=req.params;
 
-    const offre = await Offre.findByIdAndDelete({ _id: OffreID, createdBy: userId });
+    const offre = await Offre.findByIdAndDelete({ _id: OffreID, createdBy: req.user.userId });
 
     if (!offre) {
-      throw new NotFoundError(`No offre with id ${OffreID}`);
+      return res.status(404).json({ message: "Offer not found" });
     }
 
-    res.status(StatusCodes.OK).send();
+    res.status(200).json({ message: "Offer deleted successfully" });
   } catch (error) {
-    throw new InternalServerError('Erreur lors de la suppression de l\'offre');
+    res.status(500).json({ message: "Error deleting the offer", error: error.message });
   }
 }
 

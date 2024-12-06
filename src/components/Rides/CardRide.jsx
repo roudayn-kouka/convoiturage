@@ -1,20 +1,43 @@
 import React, { useState } from "react";
 import { X } from 'lucide-react';
 import "./CardRide.css";
+import axios from "axios"
 
-export default function RideCard({ offer }) {
+export default function RideCard({ offer , passenger }) {
+  
   const [showModal, setShowModal] = useState(false);
-  const [bookingConfirmed, setBookingConfirmed] = useState(false); // Nouvel état pour la confirmation
-  const [reservedSeats, setReservedSeats] = useState(1); // Nouvelle variable pour les places réservées
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [reservedSeats, setReservedSeats] = useState(1);
+  const token=passenger.token
 
-  const handleBooking = (e) => {
+  console.log(token)
+  console.log(passenger.Id)
+  console.log(offer._id)
+
+  const handleBooking = async (e) => {
     e.preventDefault();
-    console.log(`Booking ${reservedSeats} seats for ride ${offer.driver}`);
-
-    // Déclenche la confirmation
-    setBookingConfirmed(true);
-
-   
+  
+    const reservationData = {
+      passenger: passenger.Id, // Assuming `passenger` contains the logged-in passenger details
+      offre: offer._id,         // Offer ID
+      numbreplacereservée: reservedSeats, // Number of seats to reserve
+    };
+  
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/v1/reserver', reservationData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+        );
+      console.log(response.data.message); // Optional: show success message
+      setBookingConfirmed(true);
+    } catch (error) {
+      console.error('Error creating reservation:', error.response?.data?.message || error.message);
+      alert('Failed to create reservation. Please try again.');
+    }
   };
 
   const renderStars = (rating) => {
@@ -24,17 +47,13 @@ export default function RideCard({ offer }) {
 
     return (
       <div className="text-warning small d-flex">
-        {Array(fullStars)
-          .fill(0)
-          .map((_, index) => (
-            <i key={`full-${index}`} className="bi bi-star-fill me-1"></i>
-          ))}
+        {Array(fullStars).fill(0).map((_, index) => (
+          <i key={`full-${index}`} className="bi bi-star-fill me-1"></i>
+        ))}
         {halfStar && <i className="bi bi-star-half me-1"></i>}
-        {Array(emptyStars)
-          .fill(0)
-          .map((_, index) => (
-            <i key={`empty-${index}`} className="bi bi-star me-1"></i>
-          ))}
+        {Array(emptyStars).fill(0).map((_, index) => (
+          <i key={`empty-${index}`} className="bi bi-star me-1"></i>
+        ))}
       </div>
     );
   };
@@ -46,58 +65,52 @@ export default function RideCard({ offer }) {
           <div className="d-flex align-items-start">
             <div className="text-center me-4">
               <img
-                src={offer.avatar}
-                alt={offer.driver}
+                src={offer.covoitureur.image} // Placeholder or profile picture
+                alt={offer.covoitureur.name}
                 className="rounded-circle border-success"
               />
-              <div className="mt-2">
-                <div className="fw-bold">{offer.rating.toFixed(1)}</div>
-                {renderStars(offer.rating)}
-              </div>
             </div>
             <div className="flex-grow-1">
               <div className="d-flex justify-content-between">
-                <h5 className="card-title mb-0">{offer.driver}</h5>
-                <div className="text-success fs-5 fw-bold">{offer.price}DT</div>
+                <h5 className="card-title mb-0">{offer.covoitureur.name}</h5>
+                <div className="text-success fs-5 fw-bold">
+                  {offer.prixparplace}DT / place
+                </div>
               </div>
               <div className="mt-3">
                 <p className="mb-1 text-muted">
                   <i className="bi bi-geo-alt-fill text-success me-2"></i>
                   <strong>
-                    {offer.departureGov} ({offer.departureLoc}) → {offer.arrivalGov} ({offer.arrivalLoc})
+                    {offer.gouvernorat_depart} ({offer.lieu_depart}) → {offer.gouvernorat_arrivée} ({offer.lieu_arrivée})
                   </strong>
                 </p>
                 <div className="d-flex text-muted">
                   <span className="me-4">
                     <i className="bi bi-calendar3 me-1"></i>
-                    {offer.date}
+                    {new Date(offer.dateDepart).toLocaleDateString()}
                   </span>
                   <span className="me-4">
                     <i className="bi bi-clock me-1"></i>
-                    {offer.time}
+                    {offer.heureDepart}
                   </span>
                   <span>
                     <i className="bi bi-telephone-fill me-1 text-success"></i>
-                    +216 {offer.phone}
+                    +216 {offer.phoneNumber}
                   </span>
                 </div>
               </div>
               <div className="d-flex flex-wrap mt-3">
                 <span className="badge bg-light text-dark me-2">
                   <i className="bi bi-person-fill me-1 text-success"></i>
-                  {offer.seats} place{offer.seats > 1 ? "s" : ""} disponible{offer.seats > 1 ? "s" : ""}
+                  {offer.nombreplacerestant} place(s) restante(s)
                 </span>
                 <span className="badge bg-light text-dark me-2">
                   <i className="bi bi-suitcase-fill me-1 text-success"></i>
-                  {offer.luggageType === "avec bagage" ? "Avec bagage" : "Sans bagage"}
+                  {offer.bagage}
                 </span>
                 <span className="badge bg-light text-dark me-2">
                   <i className="bi bi-people-fill me-1 text-success"></i>
-                  {offer.gender === "fille"
-                    ? "Fille"
-                    : offer.gender === "garçon"
-                    ? "Garçon"
-                    : "Fille & Garçon"}
+                  {offer.genre}
                 </span>
               </div>
             </div>
@@ -120,12 +133,14 @@ export default function RideCard({ offer }) {
             <h2 className="text-center mb-4">Réserver votre trajet</h2>
             <div className="trip-details">
               <p className="subtitle">Trajet sélectionné :</p>
-              <p>{offer.departureGov} ({offer.departureLoc}) → {offer.arrivalGov} ({offer.arrivalLoc})</p>
-              <p className="text-muted">{offer.date} à {offer.time}</p>
+              <p>{offer.gouvernorat_depart} ({offer.lieu_depart}) → {offer.gouvernorat_arrivée} ({offer.lieu_arrivée})</p>
+              <p className="text-muted">
+                {new Date(offer.dateDepart).toLocaleDateString()} à {offer.heureDepart}
+              </p>
             </div>
             {bookingConfirmed ? (
               <div className="alert alert-success text-center">
-                <strong>Réservation confirmée pour ce trajet !</strong> Veuillez attendre une confirmation envoyée par email.
+                Réservation confirmée pour ce trajet !<strong> Veuillez attendre une confirmation envoyée par email.</strong>
               </div>
             ) : (
               <form onSubmit={handleBooking}>
@@ -134,17 +149,17 @@ export default function RideCard({ offer }) {
                   <input
                     type="number"
                     min="1"
-                    max={offer.seats}
+                    max={offer.nombreplacerestant}
                     value={reservedSeats}
                     onChange={(e) => setReservedSeats(parseInt(e.target.value))}
                     className="form-control"
                     required
                   />
-                  <small className="form-text">{offer.seats} places disponibles</small>
+                  <small className="form-text">{offer.nombreplacerestant} places disponibles</small>
                 </div>
                 <div className="d-flex justify-content-between mt-3">
                   <p>Prix total :</p>
-                  <p>{offer.price * reservedSeats}DT</p>
+                  <p>{offer.prixparplace * reservedSeats}DT</p>
                 </div>
                 <button type="submit" className="btn btn-success w-100 mt-3">Confirmer la réservation</button>
               </form>

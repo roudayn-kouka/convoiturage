@@ -72,7 +72,7 @@ const login = async (req, res) => {
 
     // Réponse avec les informations du passager et le token
     res.status(StatusCodes.OK).json({
-      passenger: { name: passenger.name,email:passenger.email },
+      passenger: { name: passenger.name,email:passenger.email,PasId:passenger._id },
       token,
     });
   } catch (error) {

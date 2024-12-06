@@ -71,16 +71,21 @@ const OffreSchema = new mongoose.Schema({
         required:true,
         enum:['avec bagage' , 'sans bagage']
     },
-    nombreplacerestant:{
+    nombreplacedisponible:{
         type: Number,
         required:[true],
+        enum:[1,2,3,4],
+
+    },
+    nombreplacerestant:{
+        type: Number,
         enum:[1,2,3,4],
 
     },
     genre:{
         type:String,
         required:[true],
-        enum:['femme','homme','homme et femme'],
+        enum:['Femme','Homme','Homme et Femme'],
     },
     prixparplace:{//j'ai besion d'enregistrer prix dans la base de donnees
         type:Number,

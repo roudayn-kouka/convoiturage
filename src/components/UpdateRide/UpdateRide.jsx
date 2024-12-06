@@ -1,29 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import { governorates, cities } from '../../Data/locations';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { governorates, cities } from "../../Data/locations";
 import { useParams, useNavigate } from "react-router-dom";
 
+export default function UpdateRide({ passenger }) {
+    const navigate = useNavigate();
+    const { rideId } = useParams();
+    console.log(rideId)
+  
 
-export default function UpdateRide() {
-//id trajet
- const { rideId } = useParams();
-
- const [formData, setFormData] = useState({
-    phone: '21950235',
-    hasBaggage: 'sans bagage',
-    price: '5',
-    time: '12:30',
-    date: '2025-02-12', 
-    gender: 'garçon',
-    seats: '1',
-    fromGov: 'Nabeul',
-    fromCity: 'Nabeul Ville',
-    toGov: 'Tunis',
-    toCity: 'FST'
+  const [offer, setOffer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    phone: "",
+    price: "",
+    date: "",
+    time: "",
+    seats: 1,
+    hasBaggage: "sans bagage",
+    gender: "",
+    fromGov: "",
+    fromCity: "",
+    toGov: "",
+    toCity: "",
   });
-
   const [fromCities, setFromCities] = useState([]);
   const [toCities, setToCities] = useState([]);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+    const fetchOffer = async () => {
+      try {
+        const token = passenger.token;
+        const response = await axios.get(
+          `http://localhost:3000/api/v1/offre/consulter/${rideId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = response.data.offre;
+        setOffer(data);
+        setFormData({
+          phone: data.phoneNumber || "",
+          price: data.prixparplace || "",
+          date: data.dateDepart.split('T')[0] || "",
+          time: data.heureDepart || "",
+          seats: data.nombreplacerestant || 1,
+          hasBaggage: data.bagage || "sans bagage",
+          gender: data.genre || "",
+          fromGov: data.gouvernorat_depart || "",
+          fromCity: data.lieu_depart || "",
+          toGov: data.gouvernorat_arrivée || "",
+          toCity: data.lieu_arrivée || "",
+        });
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setFormError(
+          err.response ? err.response.data.message : "Error fetching offer"
+        );
+        setLoading(false);
+        alert("Failed to load offer details.");
+        navigate("/dashboard/my-rides"); // Redirect on error
+      }
+    };
+    fetchOffer();
+  }, [rideId, navigate, passenger.token]);
 
   useEffect(() => {
     if (formData.fromGov) {
@@ -38,28 +82,33 @@ export default function UpdateRide() {
   }, [formData.toGov]);
 
   const validateFSTLocation = () => {
-    const hasFSTDeparture = formData.fromGov === 'Tunis' && formData.fromCity === 'FST';
-    const hasFSTArrival = formData.toGov === 'Tunis' && formData.toCity === 'FST';
-    
+    const hasFSTDeparture =
+      formData.fromGov === "Tunis" && formData.fromCity === "FST";
+    const hasFSTArrival =
+      formData.toGov === "Tunis" && formData.toCity === "FST";
+
     if (!hasFSTDeparture && !hasFSTArrival) {
-      setFormError('Le trajet doit inclure FST (Tunis) comme point de départ ou d\'arrivée');
+      setFormError(
+        "Le trajet doit inclure FST (Tunis) comme point de départ ou d'arrivée"
+      );
       return false;
     }
-    setFormError('');
+    setFormError("");
     return true;
   };
 
   const validateDate = () => {
     const selectedDate = new Date(formData.date);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Ignore l'heure pour comparer les dates
+    today.setHours(0, 0, 0, 0);
 
     if (selectedDate < today) {
-      setFormError('La date doit être aujourd\'hui ou dans le futur.');
+      setFormError("La date doit être aujourd'hui ou dans le futur.");
       return false;
     }
     return true;
   };
+
   const validatePhone = (phone) => {
     const phoneRegex = /^[0-9]{8}$/;
     return phoneRegex.test(phone);
@@ -69,26 +118,72 @@ export default function UpdateRide() {
     return !isNaN(price) && price > 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate inputs
     if (!validatePhone(formData.phone)) {
-      setFormError('Le numéro de téléphone doit contenir seulement des chiffres et être composé de 8 chiffres.');
+      setFormError(
+        "Le numéro de téléphone doit contenir seulement des chiffres et être composé de 8 chiffres."
+      );
       return;
     }
 
     if (!validatePrice(formData.price)) {
-      setFormError('Le prix doit être un nombre valide.');
+      setFormError("Le prix doit être un nombre valide.");
       return;
     }
-    if (validateFSTLocation() && validateDate()) {
-      console.log("Trajet mis à jour :", formData);
+
+    if (!validateFSTLocation() || !validateDate()) {
+      return;
+    }
+    
+    try {
+      const token = passenger.token;
+      const updatedOffer = {
+        gouvernorat_arrivée: formData.toGov,
+        lieu_arrivée: formData.toCity,
+        gouvernorat_depart: formData.fromGov,
+        lieu_depart: formData.fromCity,
+        dateDepart: new Date(formData.date), // Ensure proper date format
+        heureDepart: formData.time, // Directly map heureDepart
+        phoneNumber: formData.phone,
+        bagage: formData.hasBaggage,
+        nombreplacedisponible: formData.seats,
+        genre: formData.gender,
+        prixparplace: formData.price,
+      };
+
+      const response = await axios.patch(
+        `http://localhost:3000/api/v1/offre/update/${rideId}`,
+        updatedOffer,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert("Trajet mis à jour avec succès !");
+      navigate("/dashboard/my-rides")
+    } catch (err) {
+      console.error(err);
+      setFormError(
+        err.response ? err.response.data.message : "Failed to update ride"
+      );
     }
   };
 
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
+
   return (
     <div className="container bg-white p-5 rounded shadow-sm">
-      <h2 className="text-center text-2xl font-bold text-success mb-4">Modifier votre trajet</h2>
-      
+      <h2 className="text-center text-2xl font-bold text-success mb-4">
+        Modifier votre trajet
+      </h2>
+
       <form onSubmit={handleSubmit}>
         <div className="row mb-3">
           <div className="col-md-6">
@@ -176,10 +271,10 @@ export default function UpdateRide() {
                 className="form-select"
                 required
               >
-                <option value="">Sélectionner</option>
-                <option value="fille">Fille</option>
-                <option value="garçon">Garçon</option>
-                <option value="fille&garçon">Fille & Garçon</option>
+                
+                <option value="Femme">Femme</option>
+                <option value="Homme">Homme</option>
+                <option value="Homme et Femme">Homme et Femme</option>
 
               </select>
             </div>

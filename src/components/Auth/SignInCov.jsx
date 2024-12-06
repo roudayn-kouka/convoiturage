@@ -81,11 +81,12 @@ const SignIn = () => {
         localStorage.setItem('name', response.data.covoitureur.name);
         localStorage.setItem('email', response.data.covoitureur.email);
         localStorage.setItem('image', response.data.covoitureur.image);
+        localStorage.setItem('ID', response.data.covoitureur.CovId);
   
         console.log('Connexion réussie:', response.data);
   
         // Redirect to the dashboard
-        navigate('/dashboard');
+        navigate('/dashboard/addtrajet');
       } catch (error) {
         console.error('Erreur lors de la connexion:', error.response?.data?.message || error.message);
         setErrors({ general: error.response?.data?.message || 'Une erreur est survenue.' });

@@ -195,15 +195,18 @@ const deleteReservation = async (req, res) => { //supression par l'admin
 
 //en appuiant sur bouton "modifier"
 const updateReservation = async (req, res) => {
-  const { reservationId } = req.params;
+  const { id } = req.params;
   const { numbreplacereservée } = req.body;
 
-  const reservation = await Reservation.findById(reservationId);
+  const reservation = await Reservation.findById(id);
   if (!reservation) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'Réservation introuvable.' });
   }
 
   const offer = await Offre.findById(reservation.offre);
+  if (!offer) {
+    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Offre introuvable.' });
+  }
 
   // Vérifier que le nombre de places demandées ne dépasse pas les places restantes
   if (numbreplacereservée > offer.nombreplacerestant) {
@@ -212,9 +215,44 @@ const updateReservation = async (req, res) => {
     });
   }
 
+  // Calculer le changement du nombre de places réservées
+  const placesDifference = numbreplacereservée - reservation.numbreplacereservée;
+
   // Mise à jour du nombre de places réservées
   reservation.numbreplacereservée = numbreplacereservée;
   await reservation.save();
+
+  // Mise à jour du nombre de places restantes dans l'offre
+  offer.nombreplacerestant -= placesDifference; // Ajuste les places restantes en fonction de la différence
+  await offer.save();
+
+  // Envoi d'un email au covoitureur
+  const driver = await Covoitureur.findById(offer.createdBy);
+  const passenger = await Passenger.findById(reservation.passenger);
+
+  const reservationLink = `http://votre-application-web.com/reservation/${reservation._id}`; // Remplacez par l'URL réelle de votre application
+
+  await sendEmail(
+    driver.email,
+    'Mise à jour de la réservation',
+    `
+    Bonjour ${driver.name},
+
+    La réservation du passager ${passenger.name} a été mise à jour. Le nombre de places réservées a changé.
+
+    Détails de la réservation :
+    - Nombre de places réservées : ${numbreplacereservée}
+    - Nombre de places restantes : ${offer.nombreplacerestant}
+
+    Pour confirmer ou rejeter cette demande, veuillez utiliser le lien suivant :
+    ${reservationLink}
+
+    Merci pour votre collaboration.
+
+    Cordialement,
+    L'équipe de votre application
+    `
+  );
 
   res.status(StatusCodes.OK).json({
     message: 'Réservation mise à jour avec succès.',
@@ -229,29 +267,41 @@ const updateReservation = async (req, res) => {
 
 //en appuiant sur bouton "annuler"
 const cancelReservation = async (req, res) => {
-  const { reservationId } = req.params;
+  const { id } = req.params;
 
   // Récupérer la réservation
-  const reservation = await Reservation.findById(reservationId);
+  const reservation = await Reservation.findById(id);
   if (!reservation) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'Réservation introuvable.' });
   }
+
   const offer = await Offre.findById(reservation.offre);
+  if (!offer) {
+    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Offre introuvable.' });
+  }
+
+  // Calculer la date et l'heure combinées pour le départ
+  const [hours, minutes] = offer.heureDepart.split(':');
+  const departureDateTime = new Date(`${offer.dateDepart}T${hours}:${minutes}:00`);
+
+  // Récupérer l'heure actuelle
   const now = new Date();
-  // Calculer l'heure de départ combinée avec la date
-  const departureTime = new Date(`${offer.dateDepart}T${offer.heureDepart}:00`);
-  // Vérifier que l'heure actuelle est inférieure à l'heure de départ
-  if (now >= departureTime) {
+
+  // Vérifier que la date et l'heure de départ n'ont pas encore été atteintes
+  if (now > departureDateTime) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: 'L\'annulation de la réservation est impossible car l\'heure de départ est déjà passée.',
     });
   }
 
-// Annuler la réservation et réajuster le nombre de places restantes
-  offer.nombreplacerestant += reservation.numbreplacereservée;
-  await offer.save();
+  // Annuler la réservation et réajuster le nombre de places restantes
+  if (reservation.status==="Confirmée"){
+    offer.nombreplacerestant += reservation.numbreplacereservée;
+    await offer.save();
+  }
+  
   // Mise à jour du statut de la réservation
-  reservation.status = 'annulée';
+  reservation.status = 'Annulée';
   await reservation.save();
 
   // Envoi d'un email au covoitureur pour l'annulation
@@ -290,6 +340,37 @@ const updateDriverBalanceForReservation = async (reservationId) => {
 }
 
 
+const getPassengerReservations = async (req, res) => {
+  try {
+     
+    const reservations = await Reservation.find({ passenger: req.user.userId });
+
+    // Fetch associated offers and drivers for each reservation
+    const reservationsWithDetails = await Promise.all(
+      reservations.map(async (reservation) => {
+        // Fetch the related offer
+        const offer = await Offre.findById(reservation.offre);
+
+        // Fetch the driver details for the offer
+        const driver = await Covoitureur.findById(offer.createdBy, 'name image');
+
+        // Combine the details into a single object
+        return {
+          ...reservation.toObject(),
+          offer: {
+            ...offer.toObject(),
+            driver,
+          },
+        };
+      })
+    );
+
+    res.status(200).json({ reservations: reservationsWithDetails });
+  } catch (error) {
+    console.error('Error fetching reservations:', error);
+    res.status(500).json({ error: 'An error occurred while fetching reservations.' });
+  }
+};
 
 
 
@@ -300,6 +381,7 @@ module.exports = {
   cancelReservation,
   updateReservation,
   deleteReservation,
+  getPassengerReservations,
 }
 
 

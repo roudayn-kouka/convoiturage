@@ -1,103 +1,71 @@
 import React, { useState, useEffect  } from "react";
 import FindRide from "./FindRide";
 import CardRide from "./CardRide";
-import { getAllRides } from "../../Api/rideOffersApi"; // Importation de l'API
 
-const mockOffers = [
-  
-  {
-    id: 1,
-    driver: "John Smith",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-    phone: "55 123 456",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Ariana",
-    arrivalLoc: "Soukra",
-    date: "2024-02-20",
-    time: "08:00",
-    price: "5",
-    seats: 1,
-    luggageType: "avec bagage",
-    rating: 5,
-    gender: "garçon",
-  },{
-    id: 2,
-    driver: "Sarah Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "55 789 012",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Ben Arous",
-    arrivalLoc: "Radès",
-    date: "2024-02-20",
-    time: "09:30",
-    price: "4",
-    seats: 1,
-    luggageType: "sans bagage",
-    rating: 4,
-    gender: "fille",
-  },
-  {
-    id: 2,
-    driver: "Sarah Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    phone: "55 789 012",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Ben Arous",
-    arrivalLoc: "Radès",
-    date: "2024-02-20",
-    time: "09:30",
-    price: "4",
-    seats: 2,
-    luggageType: "sans bagage",
-    rating: 2,
-    gender: "fille",
-  },
-  {
-    id: 3,
-    driver: "Alex Taylor",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-    phone: "55 456 789",
-    departureGov: "Tunis",
-    departureLoc: "FST",
-    arrivalGov: "Manouba",
-    arrivalLoc: "Douar Hicher",
-    date: "2024-02-20",
-    time: "10:30",
-    price: "6",
-    seats: 3,
-    luggageType: "avec bagage",
-    rating: 4.5,
-    gender: "fille&garçon",
-  },
-];
+import axios from "axios";
 
-export default function RideOffers() {
+
+
+export default function RideOffers({ passenger }) {
     //const [offers, setOffers] = useState([]);
-    const [offers, setOffers] = useState(mockOffers); // Offres actuelles
-
-    const [filters, setFilters] = useState(null); // Valeurs des filtres
+    const [offers, setOffers] = useState([]); // Current offers
+    const [filteredOffers, setFilteredOffers] = useState([]); // Filtered offers
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState(null); // Error state
+    const token = passenger.token
+    console.log(token);
+    useEffect(() => {
+      const fetchOffers = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:3000/api/v1/offre/rechercher",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+            ); // Use your backend route
+          setOffers(response.data.offres);
+          setFilteredOffers(response.data.offres);
+        } catch (error) {
+          console.error("Error fetching offers:", error);
+          setError("Erreur lors de la récupération des offres.");
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchOffers();
+    }, []);
 
     const handleSearch = (filters) => {
-      setFilters(filters);
-      console.log(filters )
+      if (!filters) {
+        setFilteredOffers(offers);
+        return;
+      }
 
 
-      const filteredOffers = mockOffers.filter((offer) => {
-       return (
-        offer.departureGov === filters.fromGov &&
-        offer.departureLoc === filters.fromCity &&
-        offer.arrivalGov === filters.toGov &&
-        offer.arrivalLoc === filters.toCity &&
-        offer.gender === filters.genderFilter
-       );
+      const filtered = offers.filter((offer) => {
+        return (
+          offer.gouvernorat_depart === filters.fromGov &&
+          offer.lieu_depart === filters.fromCity &&
+          offer.gouvernorat_arrivée === filters.toGov &&
+          offer.lieu_arrivée === filters.toCity &&
+          (!filters.genderFilter || offer.genre === filters.genderFilter)
+        );
       });
-
-       setOffers(filteredOffers);
+  
+      setFilteredOffers(filtered);
     };
 
+      // Handle loading and error states
+    if (loading) {
+      return <div>Chargement des trajets...</div>;
+    }
+
+    if (error) {
+      return <div className="alert alert-danger">{error}</div>;
+    }
 //******************************************* */
 // Fonction pour récupérer les offres au chargement de la page
 /*useEffect(() => {
@@ -119,10 +87,10 @@ export default function RideOffers() {
       <FindRide onSearch={handleSearch}  />
       <h5 className="mb-4">Trajets disponibles</h5>
       <div className="row ">
-      {offers.length > 0 ? (
-          offers.map((offer) => (
-            <div className="col-md-6" key={offer.id}>
-              <CardRide offer={offer} />
+      {filteredOffers.length > 0 ? (
+          filteredOffers.map((offer) => (
+            <div className="col-md-6" key={offer._id}>
+              <CardRide offer={offer} passenger={passenger}/>
             </div>
           ))
         ) : (

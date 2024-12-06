@@ -44,6 +44,7 @@ const { UnauthenticatedError, ForbiddenError } = require('../errors');
 const auth = (roles = []) => {
   return async (req, res, next) => {
     const authHeader = req.headers.authorization;
+    console.log('Authorization Header:', authHeader);
 
     if (!authHeader || !authHeader.startsWith('Bearer')) {
       console.log('En-tête Authorization invalide ou manquant')
@@ -57,12 +58,12 @@ const auth = (roles = []) => {
       console.log('Payload:', payload);
 
       // Ajouter l'utilisateur dans la requête
-      req.user = { userId: payload.userId, name: payload.name, role: payload.role };
+      req.user = { userId: payload.userId, name: payload.name };
 
-      // Vérification des rôles si spécifié
-      if (roles.length > 0 && !roles.includes(payload.role)) {
-        throw new ForbiddenError('Access denied');
-      }
+      // // Vérification des rôles si spécifié
+      // if (roles.length > 0 && !roles.includes(payload.role)) {
+      //   throw new ForbiddenError('Access denied');
+      // }
 
       next();
     } catch (error) {
