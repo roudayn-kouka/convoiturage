@@ -20,7 +20,8 @@ export default function CreateRide({ passenger }) {
   const [fromCities, setFromCities] = useState([]);
   const [toCities, setToCities] = useState([]);
   const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [Message, setMessage] = useState('');
+  const [alertType, setAlertType] = useState(''); // Nouveau state pour le type d'alerte
 
   useEffect(() => {
     if (formData.fromGov) {
@@ -329,9 +330,11 @@ export default function CreateRide({ passenger }) {
           </div>
         )}
 
-        {successMessage && (
-          <div className="alert alert-success mb-3">
-            {successMessage}
+        {Message && (
+          <div className={`alert mb-3 ${
+            alertType === 'success' ? 'alert-success' : 'alert-danger'
+          }`}>
+            {Message}
           </div>
         )}
 

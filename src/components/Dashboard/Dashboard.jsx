@@ -1,5 +1,5 @@
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate  } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import './Dashboard.css'; // Assurez-vous de lier votre fichier CSS
@@ -8,9 +8,14 @@ import RideCond from '../RideCond/RideCond';
 import RidePassg from '../RidePassg/RidePassg';
 import AddRide from '../AddRide/AddRide';
 import UpdateRide from '../UpdateRide/UpdateRide';
+import ProfilPass from '../Profil/ProfilPass';
+import ProfilCond from '../Profil/ProfilCond';
 
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+const role = localStorage.getItem('role'); // Récupère le rôle depuis le stockage local
+
   const [passenger, setPassenger] = useState({ name: '', email: '' });
 
   // Fetch user info from localStorage
@@ -47,6 +52,9 @@ const Dashboard = () => {
               <Route path="/updateride/:rideId" element={<UpdateRide passenger={passenger}/>} />
 
               <Route path="/GestionRev" element={<div>Gestion réservations</div>} />
+              <Route path="/ProfilCond" element={<ProfilCond />} />
+              <Route path="/ProfilPass" element={<ProfilPass />} />
+
             </Routes>
           </main>
 

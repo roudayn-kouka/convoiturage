@@ -43,7 +43,13 @@ const SignUp = () => {
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "S'il vous plaît, mettez une adresse email valide.";
     }
-
+   // Validation phone
+    const phoneRegex = /^[0-9]{8}$/;
+    if (!formData.phone) {
+      newErrors.phone = "Le numéro de téléphone est obligatoire.";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
+    }
     // Validation du mot de passe
     const passwordRegexLength = /^.{8,}$/;
     const passwordRegexStrength = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
@@ -139,6 +145,17 @@ const SignUp = () => {
                 placeholder="Entrez votre email"
               />
               {errors.email && <p className="error-message">{errors.email}</p>}
+            </div>
+            <div className="form-group">
+              <label htmlFor="phone">Numéro de téléphone</label>
+              <input
+                type="text"
+                id="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Entrez votre numéro de téléphone"
+              />
+              {errors.phone && <p className="error-message">{errors.phone}</p>}
             </div>
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>

@@ -66,13 +66,20 @@ function ReservationsList({ passenger }) {
   };
 
   const handleRate = (index, value) => {
+
+    const updatedTrip = { ...trips[index], rating: value };
+
     setTrips((prevTrips) =>
       prevTrips.map((trip, i) =>
-        i === index ? { ...trip, rating: value } : trip
+        i === index ? updatedTrip : trip
       )
     );
-    console.log(`Trajet ${index} noté ${value} étoiles.`);
+    console.log(`Trajet ${index} noté ${updatedTrip.rating} étoiles.`);
+    console.log(updatedTrip);
+
   };
+
+
 
   const handleCancelClick = async(index) => {
     
