@@ -229,7 +229,7 @@ const createOffre = async (req, res) => {
 
       // Retourner une réponse pour empêcher la création de l'offre
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Le montant payé est insuffisant. L\'offre ne peut pas être créée.Veuillez contacter l\'admin sur le numero : 23074149  ',
+        message: `Le montant payé est insuffisant ${covoitureur.montant_payé}. L\'offre ne peut pas être créée.Veuillez contacter l\'admin sur le numero : 23074149  `,
       });
     }
 

@@ -10,7 +10,7 @@ import AddRide from '../AddRide/AddRide';
 import UpdateRide from '../UpdateRide/UpdateRide';
 import ProfilPass from '../Profil/ProfilPass';
 import ProfilCond from '../Profil/ProfilCond';
-
+import GestionRev from '../GestionRev/GestionRev'
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const role = localStorage.getItem('role'); // Récupère le rôle depuis le stoc
               <Route path="/addtrajet" element={<AddRide passenger={passenger}/>} />
               <Route path="/updateride/:rideId" element={<UpdateRide passenger={passenger}/>} />
 
-              <Route path="/GestionRev" element={<div>Gestion réservations</div>} />
+              <Route path="/GestionRev" element={<GestionRev passenger={passenger}/>} />
               <Route path="/ProfilCond" element={<ProfilCond />} />
               <Route path="/ProfilPass" element={<ProfilPass />} />
 

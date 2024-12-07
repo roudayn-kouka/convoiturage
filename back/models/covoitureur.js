@@ -44,25 +44,28 @@ const covoitureurschema = new mongoose.Schema({
          type: Number,
          default: 0 ,
     },
-    coursesCount: {
-       type: Number, 
-       default: 0 ,
-    },
     montant_payé:{
         type:Number,
         default:0,
-        enum:[0,5,10,20],
     },
     isValidated: {
         type: Boolean,
         default: false, // Compte non validé par défaut
     },
-    
+    commission_plateforme:{
+        type:Number,
+        default:0,
+    },
 })
-covoitureurschema.pre('save', async function () {
-        const salt = await bcrypt.genSalt(10)
-        this.password = await bcrypt.hash(this.password, salt)
-})
+covoitureurschema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+      // Si le mot de passe n'est pas modifié, ne pas le re-hacher
+      return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  });
 covoitureurschema.methods.createJWT = function () {
         return jwt.sign(
           { userId: this._id, name: this.name },

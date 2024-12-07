@@ -17,9 +17,9 @@ const OffreSchema = new mongoose.Schema({
     gouvernorat_depart :{
         type :String,
         required: [true, 'Le gouvernorat de depart est requis'],
-        enum:['Ariana', 'Béja', 'Ben Arous', 'Bizerte', 'El Kef', 'Gabes', 'Gafsa',
+        enum:['Ariana', 'Béja', 'Ben Arous', 'Bizerte', 'El Kef', 'Gabès', 'Gafsa',
       'Jendouba', 'Kairouan', 'Kasserine', 'Kebili', 'Mahdia', 'Manouba',
-      'Medenine', 'Monastir', 'Nabeul', 'Sfax', 'Sidi Bouzid', 'Siliana',
+      'Médenine', 'Monastir', 'Nabeul', 'Sfax', 'Sidi Bouzid', 'Siliana',
       'Sousse', 'Tataouine', 'Tozeur', 'Tunis', 'Zaghouan']
 
     },
@@ -79,7 +79,7 @@ const OffreSchema = new mongoose.Schema({
     },
     nombreplacerestant:{
         type: Number,
-        enum:[1,2,3,4],
+        enum:[0,1,2,3,4],
 
     },
     genre:{

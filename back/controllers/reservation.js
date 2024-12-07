@@ -86,47 +86,56 @@ const createReservation = async (req, res) => {
 
 // le covoitureur confirme la reservation ( appuie sur une boutton "confimer")
 const confirmReservation = async (req, res) => {
-  const { reservationId } = req.params;
+  const { id } = req.params;
+  console.log("Reservation ID:", id);
 
   // Vérification de la validité de l'ID de réservation
-  if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'ID de réservation invalide.' });
   }
 
   try {
-    const reservation = await Reservation.findById(reservationId);
-    console.log(reservation);  // Vérifier la réservation récupérée
+    // Trouver la réservation
+    const reservation = await Reservation.findById(id).populate('offre');
+    console.log(reservation); // Vérifier la réservation récupérée
+
     if (!reservation) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Réservation introuvable.' });
     }
 
-    const offer = reservation.offre;
+    const offre = reservation.offre;
 
-    if (reservation.numbreplacereservée > offer.nombreplacerestant) {
+    // Vérifier si l'offre existe
+    if (!offre) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Offre associée introuvable.' });
+    }
+
+    // Vérifier le nombre de places disponibles
+    if (reservation.numbreplacereservée > offre.nombreplacerestant) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: 'Le nombre de places demandées dépasse le nombre de places restantes.',
       });
     }
 
     // Décrémenter le nombre de places restantes
-    offer.nombreplacerestant -= reservation.numbreplacereservée;
-    await offer.save();
+    offre.nombreplacerestant -= reservation.numbreplacereservée;
+    await offre.save();
 
-    // Mise à jour du statut de la réservation
-    reservation.status = 'confirmed';
+    // Mettre à jour le statut de la réservation
+    reservation.status = 'Confirmée';
     await reservation.save();
 
     // Appel à la fonction pour mettre à jour la balance du conducteur uniquement si la réservation est confirmée
-    if (reservation.status === 'confirmed') {
+    if (reservation.status === 'Confirmée') {
       await updateDriverBalanceForReservation(reservation._id);
     }
 
-    // Envoi de l'email au passager
+    // Envoyer un email au passager
     const passenger = await Passenger.findById(reservation.passenger);
     await sendEmail(
       passenger.email,
       'Réservation confirmée',
-      `Votre réservation de ${reservation.numbreplacereservée} place(s) a été confirmée pour le trajet vers ${offer.lieu_arrivée}.`
+      `Votre réservation de ${reservation.numbreplacereservée} place(s) a été confirmée pour le trajet vers ${offre.lieu_arrivée}.`
     );
 
     res.status(StatusCodes.OK).json({
@@ -150,22 +159,31 @@ const confirmReservation = async (req, res) => {
 
 //le covoitureur refuse la reservation (appuie sur une boutton "rejeter" )
 const rejectReservation = async (req, res) => {
-  const { reservationId } = req.params;
+  const { id } = req.params;
 
-  const reservation = await Reservation.findById(reservationId);
+  const reservation = await Reservation.findById(id);
   if (!reservation) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'Réservation introuvable.' });
   }
 
   // Mise à jour du statut en "rejected"
-  reservation.status = 'rejected';
+  reservation.status = 'Rejetée';
   await reservation.save();
-
+  const loginLink = 'https://votre-site.com/api/v1/auth_passenger/login'
   // Envoi d'un email au passager
+  const passenger = await Passenger.findById(reservation.passenger);
   await sendEmail(
-    reservation.passenger.email,
+    passenger.email,
     'Réservation annulée',
-    'Votre réservation a été annulée par le covoitureur.'
+    `Bonjour ${passenger.name},
+
+    Nous vous remercions d'avoir effectué une réservation via notre plateforme.
+
+    Malheureusement, votre réservation a été annulée par le covoitureur.
+    N'hésitez pas à explorer d'autres offres de covoiturage disponibles sur notre plateforme via ce lien ci dessous:
+     ${loginLink} 
+     Cordialement,  
+     L'équipe de support de Merwe7aMerte7a.`
   );
 
   res.status(StatusCodes.OK).json({ message: 'Réservation rejetée avec succès.' });
@@ -319,25 +337,113 @@ const cancelReservation = async (req, res) => {
 
 
 const updateDriverBalanceForReservation = async (reservationId) => {
-  const reservation = await Reservation.findById(reservationId).populate('offre');
-  if (!reservation || reservation.status !== 'confirmed') {
-    return; // Ne pas mettre à jour si la réservation n'est pas confirmée
+  try {
+    const reservation = await Reservation.findById(reservationId).populate('offre');
+    if (!reservation || reservation.status !== 'Confirmée') {
+      return; // Ne pas mettre à jour si la réservation n'est pas confirmée
+    }
+
+    const offer = reservation.offre;
+
+    if (!offer) {
+      console.error('Offre introuvable pour cette réservation.');
+      return;
+    }
+
+    // Assurez-vous que dateDepart est une instance de Date ou la formatez correctement
+    const departureDate = offer.dateDepart instanceof Date ? offer.dateDepart : new Date(offer.dateDepart);
+
+    // Calcul de l'heure de départ + 10 minutes
+    const departureTime = new Date(departureDate);
+    const [hours, minutes] = offer.heureDepart.split(':'); // Assurez-vous que heureDepart est une chaîne de type "hh:mm"
+    departureTime.setHours(hours);
+    departureTime.setMinutes(minutes);
+    
+    const timeAfter10Minutes = new Date(departureTime.getTime() + 10 * 60 * 1000);
+
+    // Vérification si le temps actuel est avant l'heure de départ + 10 minutes
+    const now = new Date();
+    if (now < timeAfter10Minutes) {
+      console.log("Il est encore trop tôt pour mettre à jour le solde du conducteur.");
+
+      // Attendre jusqu'à timeAfter10Minutes
+      const timeDifference = timeAfter10Minutes - now; // Calculer la différence en millisecondes
+      setTimeout(async () => {
+        await processBalanceUpdate(reservation, offer);
+      }, timeDifference); // Délai d'attente jusqu'à timeAfter10Minutes
+      return;
+    }
+
+    // Si le temps actuel est déjà après timeAfter10Minutes, mettre à jour immédiatement
+    await processBalanceUpdate(reservation, offer);
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la balance du conducteur:', error);
   }
+};
 
-  const offer = reservation.offre;
-  const driver = await Covoitureur.findById(offer.createdBy);
-  const totalAmount = (reservation.numbreplacereservée) * offer.prixparplace;
+// Fonction pour gérer la mise à jour de la balance
+const processBalanceUpdate = async (reservation, offer) => {
+  try {
+    // Vérification si la réservation est toujours confirmée
+    if (reservation.status === 'Annulée') {
+      console.log("La réservation a été annulée, les modifications ne sont pas effectuées.");
+      return;
+    }
 
-  // Calcul du montant total après commission
-  const commission = 0.2 * totalAmount;
+    // Mise à jour des balances
+    const driver = await Covoitureur.findById(offer.createdBy);
+    if (!driver) {
+      console.error('Covoitureur introuvable.');
+      return;
+    }
 
-  // Mise à jour du solde du covoitureur
-  driver.solde += totalAmount;
-  driver.montant_payé -= commission; // Réduction du montant payé
+    const totalAmount = reservation.numbreplacereservée * offer.prixparplace;
 
-  await driver.save();
-  console.log(`Solde du covoitureur mis à jour. Nouveau solde: ${driver.solde}`);
-}
+    // Calcul de la commission (20%)
+    const commission = 0.2 * totalAmount;
+
+    // Mise à jour des données du conducteur
+    driver.solde += totalAmount; // Ajouter le montant total
+    driver.commission_plateforme += commission; // Ajouter la commission
+    driver.montant_payé -= commission; // Réduire la commission du montant payé
+
+    await driver.save();
+
+    console.log(`Solde et commission mis à jour pour le covoitureur. Nouveau solde: ${driver.solde}, commission: ${driver.commission_plateforme}`);
+
+    // Envoi de l'e-mail de confirmation au conducteur
+    const subject = 'Mise à jour de votre solde';
+    const text = `
+      Cher ${driver.name},
+
+      Votre solde a été mis à jour suite à une réservation confirmée.
+
+      - **Montant total ajouté :** ${totalAmount.toFixed(2)} €
+      - **Commission prélevée :** ${commission.toFixed(2)} €
+      - **Nouveau solde :** ${driver.solde.toFixed(2)} €
+      - **Commission totale accumulée :** ${driver.commission_plateforme.toFixed(2)} €
+      - **Montant payé restant :** ${driver.montant_payé.toFixed(2)} €
+
+      Merci pour votre contribution à notre plateforme.
+
+      Cordialement,  
+      L'équipe de support
+    `;
+
+    try {
+      await sendEmail(driver.email, subject, text);
+      console.log('Email de mise à jour du solde envoyé à', driver.email);
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi de l\'email de confirmation :', emailError);
+    }
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la balance du conducteur dans processBalanceUpdate:', error);
+  }
+};
+
+
 
 
 const getPassengerReservations = async (req, res) => {
@@ -372,7 +478,44 @@ const getPassengerReservations = async (req, res) => {
   }
 };
 
+const getReservationsForCovoitureur = async (req, res) => {
+  try {
+    const covoitureurId = req.user.userId; // Assuming `req.user.userId` contains the authenticated covoitureur's ID
 
+    // Step 1: Find all offers created by this covoitureur
+    const offers = await Offre.find({ createdBy: covoitureurId }).select('_id');
+
+    // Step 2: Extract the offer IDs
+    const offerIds = offers.map(offer => offer._id);
+
+    // Step 3: Find all reservations for these offers
+    const reservations = await Reservation.find({ offre: { $in: offerIds } });
+
+    // Step 4: Fetch passengers and offer details manually
+    const detailedReservations = await Promise.all(
+      reservations.map(async (reservation) => {
+        // Fetch passenger details
+        const passenger = await Passenger.findById(reservation.passenger).select('name email');
+
+        // Fetch offer details
+        const offer = await Offre.findById(reservation.offre).select('lieu_depart lieu_arrivée dateDepart heureDepart gouvernorat_depart gouvernorat_arrivée prixparplace');
+
+        // Combine reservation, passenger, and offer details
+        return {
+          ...reservation.toObject(),
+          passenger,
+          offer,
+        };
+      })
+    );
+
+    // Step 5: Send the response
+    res.status(200).json({ success: true, reservations: detailedReservations });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 module.exports = {
   createReservation,
@@ -382,6 +525,7 @@ module.exports = {
   updateReservation,
   deleteReservation,
   getPassengerReservations,
+  getReservationsForCovoitureur,
 }
 
 

@@ -22,6 +22,7 @@ export default function CreateRide({ passenger }) {
   const [formError, setFormError] = useState('');
   const [Message, setMessage] = useState('');
   const [alertType, setAlertType] = useState(''); // Nouveau state pour le type d'alerte
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (formData.fromGov) {
@@ -330,11 +331,9 @@ export default function CreateRide({ passenger }) {
           </div>
         )}
 
-        {Message && (
-          <div className={`alert mb-3 ${
-            alertType === 'success' ? 'alert-success' : 'alert-danger'
-          }`}>
-            {Message}
+        {successMessage && (
+          <div className="alert alert-success mb-3">
+            {successMessage}
           </div>
         )}
 

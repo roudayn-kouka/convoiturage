@@ -353,13 +353,8 @@ export default function UpdateRide({ passenger }) {
           </div>
         )}
 
-        {Message && (
-          <div className={`alert mb-3 ${
-            alertType === 'success' ? 'alert-success' : 'alert-danger'
-          }`}>
-            {Message}
-          </div>
-        )}
+        
+        
         <button
           type="submit"
           className="btn btn-success w-100"
