@@ -206,6 +206,8 @@ const createOffre = async (req, res) => {
     // Vérifier si le montant payé est suffisant pour couvrir la commission
     if (montantPaye < commissionMinimale) {
       // Envoi de l'email à l'administrateur
+      covoitureur.isPaymentInsuffisant = true;
+      await covoitureur.save();
       const adminEmail = process.env.ADMIN_EMAIL; // Remplacez par l'email de l'admin
       const subject = 'Montant payé insuffisant pour une offre';
       const text = `

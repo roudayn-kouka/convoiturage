@@ -65,6 +65,7 @@ const SignIn = () => {
         localStorage.setItem('name', response.data.passenger.name);
         localStorage.setItem('email', response.data.passenger.email);
         localStorage.setItem('ID', response.data.passenger.PasId);
+        localStorage.setItem('phone', response.data.passenger.phoneNumber);
   
         
         

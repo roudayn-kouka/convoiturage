@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-  const {name, email, password } = req.body;
+  const {name, email,phoneNumber, password } = req.body;
 
   try {
     // Vérification si le mot de passe a déjà été utilisé
@@ -29,7 +29,7 @@ const register = async (req, res) => {
 
     // Réponse avec le nom du passager et le token
     res.status(StatusCodes.CREATED).json({
-      passenger: { name: passenger.name,email:passenger.email },
+      passenger: { name: passenger.name,email:passenger.email,phone:passenger.phoneNumber },
       token,
     });
   } catch (error) {
@@ -72,7 +72,7 @@ const login = async (req, res) => {
 
     // Réponse avec les informations du passager et le token
     res.status(StatusCodes.OK).json({
-      passenger: { name: passenger.name,email:passenger.email,PasId:passenger._id },
+      passenger: { name: passenger.name,email:passenger.email,PasId:passenger._id,phoneNumber:passenger.phoneNumber },
       token,
     });
   } catch (error) {
@@ -86,7 +86,60 @@ const login = async (req, res) => {
   }
 };
 
+
+const updatepass = async (req, res) => {
+  const { id, email, phone, password } = req.body;
+
+  try {
+    // Find the existing Passenger by ID
+    const existingUser = await Passenger.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: "Passenger introuvable" });
+    }
+
+    const updatedFields = {
+      phoneNumber: phone,
+    };
+
+    // Check if the provided email is different from the existing email
+    if (email && email !== existingUser.email) {
+      const emailExists = await Passenger.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Cet email est déjà utilisé" });
+      }
+      updatedFields.email = email; // If email is different, update it
+    }
+
+    // Check if the password is provided and different from the current one
+    if (password) {
+      const bcrypt = require("bcryptjs");
+
+      // Compare the provided password with the existing password
+      const isMatch = await bcrypt.compare(password, existingUser.password);
+      if (isMatch) {
+        return res.status(400).json({ message: "Le mot de passe est identique à l'existant" });
+      }
+
+      // If the password is different, hash the new password and update it
+      const salt = await bcrypt.genSalt(10);
+      updatedFields.password = await bcrypt.hash(password, salt);
+    }
+
+    // Update the user profile in the database
+    const user = await Passenger.findByIdAndUpdate(id, { $set: updatedFields }, { new: true });
+
+    // Respond with the updated user profile
+    res.status(200).json({ message: "Profil mis à jour avec succès", user });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur du serveur" });
+  }
+};
+
+
 module.exports = {
   register,
   login,
+  updatepass,
 }

@@ -99,7 +99,7 @@ const login = async (req, res) => {
 
     // Génération du JWT (token)
     const token = covoitureur.createJWT();
-    res.status(StatusCodes.OK).json({ covoitureur: { name: covoitureur.name,email:covoitureur.email,image:covoitureur.image,CovId:covoitureur._id }, token });
+    res.status(StatusCodes.OK).json({ covoitureur: { name: covoitureur.name,email:covoitureur.email,image:covoitureur.image,CovId:covoitureur._id , phoneNumber:covoitureur.phoneNumber , solde:covoitureur.solde , montant_payé:covoitureur.montant_payé}, token });
 
   } catch (error) {
     // Gestion des erreurs : si c'est une erreur spécifique, la relancer
@@ -115,9 +115,64 @@ const login = async (req, res) => {
 
 
 
+// Update profile
+const updatecov = async (req, res) => {
+  const { id, email, phone, password, image, solde, montantpaye } = req.body;
+
+  try {
+    // Find the existing Covoitureur by ID
+    const existingUser = await Covoitureur.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: "Covoitureur introuvable" });
+    }
+
+    const updatedFields = {
+      phoneNumber: phone,
+      image,
+      solde,
+      montant_payé: montantpaye,
+    };
+
+    // Check if the provided email is different from the existing email
+    if (email && email !== existingUser.email) {
+      const emailExists = await Covoitureur.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Cet email est déjà utilisé" });
+      }
+      updatedFields.email = email; // If email is different, update it
+    }
+
+    // Check if the password is provided and different from the current one
+    if (password) {
+      const bcrypt = require("bcryptjs");
+
+      // Compare the provided password with the existing password
+      const isMatch = await bcrypt.compare(password, existingUser.password);
+      if (isMatch) {
+        return res.status(400).json({ message: "Le mot de passe est identique à l'existant" });
+      }
+
+      // If the password is different, hash the new password and update it
+      const salt = await bcrypt.genSalt(10);
+      updatedFields.password = await bcrypt.hash(password, salt);
+    }
+
+    // Update the user profile in the database
+    const user = await Covoitureur.findByIdAndUpdate(id, { $set: updatedFields }, { new: true });
+
+    // Respond with the updated user profile
+    res.status(200).json({ message: "Profil mis à jour avec succès", user });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur du serveur" });
+  }
+};
+
 
 
 module.exports = {
   register,
   login,
+  updatecov,
 };

@@ -56,6 +56,10 @@ const covoitureurschema = new mongoose.Schema({
         type:Number,
         default:0,
     },
+    isPaymentInsuffisant: {
+        type: Boolean,
+        default: false, // Compte non validé par défaut
+    },
 })
 covoitureurschema.pre('save', async function (next) {
     if (!this.isModified('password')) {

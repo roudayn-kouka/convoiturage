@@ -1,28 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const ProfilPass = () => {
+const ProfilPass = ({ passenger }) => {
   const [profile, setProfile] = useState({
-    fullName: "John Doe",
-    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-    phone: "21 345 678",
-    email: "john.doe@example.com",
+    id:"",
+    fullName: "",
+    phone: "",
+    email: "",
     password: "",
     confirmPassword: "",
-   
   });
 
+  const [editMode, setEditMode] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (passenger) {
+      setProfile({
+        id:passenger.Id,
+        fullName: passenger.name,
+        phone: passenger.phoneNumber,
+        email: passenger.email,
+        password: "",
+        confirmPassword: "",
+      });
+    }
+  }, [passenger]);
 
-
-
-  const handleImageChange  = (e) => {
-    const file = e.target.files[0];
-    setProfile((prevData) => ({
-      ...prevData,
-      image: file,
-    }));
-  };
+  
 
   const validate = () => {
     let isValid = true;
@@ -41,15 +48,7 @@ const ProfilPass = () => {
       isValid = false;
     }
 
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(profile.password)) {
-      newErrors.password =
-        "Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule, une lettre minuscule, un chiffre et un symbole spécial.";
-      isValid = false;
-    }
-
-    if (profile.password !== profile.confirmPassword) {
+    if (profile.password && profile.password !== profile.confirmPassword) {
       newErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
       isValid = false;
     }
@@ -58,16 +57,37 @@ const ProfilPass = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("Profil mis à jour :", profile);
-      setSuccessMessage("Profil mis à jour avec succès !");
-      setProfile({ ...profile, password: "", confirmPassword: "" });
-
-      // Masquer l'alerte après quelques secondes
-      setTimeout(() => setSuccessMessage(""), 3000);
+  
+    // Validate the form
+    if (!validate()) return;
+  
+    try {
+      // Make the PUT request to update the profile
+      await axios.put("http://localhost:3000/api/v1/auth_passenger/update", profile);
+  
+      // Check if email or password is changed, then navigate
+      if (profile.email !== passenger.email || profile.password) {
+        setSuccessMessage("Profil mis à jour avec succès !");
+        setEditMode(false);
+        navigate("/signin"); // Redirect to the sign-in page
+      } else {
+        setSuccessMessage("Profil mis à jour avec succès !");
+        setEditMode(false);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error);
+      setErrors({ server: "Une erreur s'est produite lors de la mise à jour." });
     }
+  };
+  
+
+  const handleEditClick = () => {
+    // Only toggle edit mode without triggering form submission
+    setEditMode(true);
+    setSuccessMessage(""); // Clear success message when editing starts
+    setErrors({}); // Clear any validation errors
   };
 
   return (
@@ -77,39 +97,15 @@ const ProfilPass = () => {
           <h3>Profil</h3>
         </div>
         <div className="card-body">
-          <div className="text-center mb-4">
-            <img
-              src={profile.image}
-              alt="Profile"
-              className="rounded-circle img-thumbnail"
-              width="150"
-              height="150"
-            />
-            <label
-              htmlFor="imageUpload"
-              className="btn btn-sm btn-success position-relative mt-2"
-              style={{ cursor: "pointer" }}
-            >
-              <i className="bi bi-pencil-fill"></i>
-              <input
-                type="file"
-                id="imageUpload"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-              />
-            </label>
-          </div>
+          
           <form onSubmit={handleSubmit}>
-            {/* Champ non modifiable */}
             <div className="mb-3">
               <label htmlFor="fullName" className="form-label">
                 Nom et prénom
               </label>
               <div className="form-control bg-light text-muted">
-                  {profile.fullName}
-                </div>
-              
+                {profile.fullName}
+              </div>
             </div>
 
             <div className="mb-3">
@@ -121,6 +117,7 @@ const ProfilPass = () => {
                 id="phone"
                 className="form-control"
                 value={profile.phone}
+                disabled={!editMode}
                 onChange={(e) =>
                   setProfile({ ...profile, phone: e.target.value })
                 }
@@ -139,6 +136,7 @@ const ProfilPass = () => {
                 id="email"
                 className="form-control"
                 value={profile.email}
+                disabled={!editMode}
                 onChange={(e) =>
                   setProfile({ ...profile, email: e.target.value })
                 }
@@ -148,62 +146,79 @@ const ProfilPass = () => {
               )}
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">
-                Nouveau mot de passe
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="form-control"
-                value={profile.password}
-                onChange={(e) =>
-                  setProfile({ ...profile, password: e.target.value })
-                }
-              />
-              {errors.password && (
-                <small className="text-danger">{errors.password}</small>
-              )}
-            </div>
+            {editMode && (
+              <>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">
+                    Nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    className="form-control"
+                    value={profile.password}
+                    onChange={(e) =>
+                      setProfile({ ...profile, password: e.target.value })
+                    }
+                  />
+                </div>
 
-            <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label">
-                Confirmez le mot de passe
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                className="form-control"
-                value={profile.confirmPassword}
-                onChange={(e) =>
-                  setProfile({ ...profile, confirmPassword: e.target.value })
-                }
-              />
-              {errors.confirmPassword && (
-                <small className="text-danger">
-                  {errors.confirmPassword}
-                </small>
-              )}
-            </div>
+                <div className="mb-3">
+                  <label htmlFor="confirmPassword" className="form-label">
+                    Confirmez le mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    className="form-control"
+                    value={profile.confirmPassword}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
+                  {errors.confirmPassword && (
+                    <small className="text-danger">
+                      {errors.confirmPassword}
+                    </small>
+                  )}
+                </div>
+              </>
+            )}
 
-           
-            {successMessage && (
-          <div className="alert alert-success mb-3">
-            {successMessage}
-          </div>
-        )}
-            <div className="text-end">
-              <button type="submit" className="btn btn-success">
+          <div className="text-end">
+            {!editMode && (
+              <button
+                type="button"
+                className="btn btn-warning"
+                onClick={handleEditClick}
+              >
                 Modifier Profil
               </button>
-            </div>
+            )}
+
+            {editMode && (
+              <button type="submit" className="btn btn-success">
+                Confirmer
+              </button>
+            )}
+          </div>
           </form>
+
+          {errors.server && (
+            <div className="alert alert-danger mt-3">{errors.server}</div>
+          )}
+          {successMessage && (
+            <div className="alert alert-success mt-3">{successMessage}</div>
+          )}
         </div>
       </div>
-
-      
     </div>
   );
 };
+
+
 
 export default ProfilPass;

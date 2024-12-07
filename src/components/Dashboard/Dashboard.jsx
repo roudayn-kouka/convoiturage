@@ -25,13 +25,16 @@ const role = localStorage.getItem('role'); // Récupère le rôle depuis le stoc
     const image = localStorage.getItem('image')
     const token = localStorage.getItem('token')
     const Id = localStorage.getItem('ID')
+    const phoneNumber = localStorage.getItem('phone')
+    const solde = localStorage.getItem('solde')
+    const montant_payé = localStorage.getItem('montantp')
 
     if (name && email) {
       if(!image){
-      setPassenger({ name, email,Id,token });
+      setPassenger({ name, email,Id,token,phoneNumber });
       }
       else{
-        setPassenger({ name, email,image,Id,token });
+        setPassenger({ name, email,image,Id,token,phoneNumber,solde,montant_payé });
       }
     }
   }, []);
@@ -52,8 +55,8 @@ const role = localStorage.getItem('role'); // Récupère le rôle depuis le stoc
               <Route path="/updateride/:rideId" element={<UpdateRide passenger={passenger}/>} />
 
               <Route path="/GestionRev" element={<GestionRev passenger={passenger}/>} />
-              <Route path="/ProfilCond" element={<ProfilCond />} />
-              <Route path="/ProfilPass" element={<ProfilPass />} />
+              <Route path="/ProfilCond" element={<ProfilCond passenger={passenger}/>} />
+              <Route path="/ProfilPass" element={<ProfilPass passenger={passenger}/>} />
 
             </Routes>
           </main>

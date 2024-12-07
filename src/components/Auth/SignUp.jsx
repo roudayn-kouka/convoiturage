@@ -7,6 +7,7 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phoneNumber:'',
     password: '',
     confirmPassword: '',
   });
@@ -45,10 +46,10 @@ const SignUp = () => {
     }
    // Validation phone
     const phoneRegex = /^[0-9]{8}$/;
-    if (!formData.phone) {
-      newErrors.phone = "Le numéro de téléphone est obligatoire.";
-    } else if (!phoneRegex.test(formData.phone)) {
-      newErrors.phone = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
+    if (!formData.phoneNumber) {
+      newErrors.phoneNumber = "Le numéro de téléphone est obligatoire.";
+    } else if (!phoneRegex.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Veuillez entrer un numéro de téléphone valide (8 chiffres).";
     }
     // Validation du mot de passe
     const passwordRegexLength = /^.{8,}$/;
@@ -147,15 +148,15 @@ const SignUp = () => {
               {errors.email && <p className="error-message">{errors.email}</p>}
             </div>
             <div className="form-group">
-              <label htmlFor="phone">Numéro de téléphone</label>
+              <label htmlFor="phoneNumber">Numéro de téléphone</label>
               <input
                 type="text"
-                id="phone"
-                value={formData.phone}
+                id="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 placeholder="Entrez votre numéro de téléphone"
               />
-              {errors.phone && <p className="error-message">{errors.phone}</p>}
+              {errors.phoneNumber && <p className="error-message">{errors.phoneNumber}</p>}
             </div>
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>

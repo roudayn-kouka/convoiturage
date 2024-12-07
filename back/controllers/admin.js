@@ -1,4 +1,4 @@
-const Covoitureur = require('../models/Covoitureur');
+const Covoitureur = require('../models/covoitureur');
 const Admin = require('../models/Admin');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
@@ -92,6 +92,8 @@ const handleOffreValidation = async (req, res) => {
 
   if (action === 'accept') {
     covoitureur.montant_payé += montantPaye; // Mettre à jour le montant payé
+    covoitureur.isPaymentInsuffisant = false
+    covoitureur.commission_plateforme = 0
     await covoitureur.save();
     return res.status(StatusCodes.OK).json({ message: 'Montant mis à jour et demande acceptée' });
   }
@@ -118,4 +120,34 @@ const handleOffreValidation = async (req, res) => {
   throw new BadRequestError('Action non valide');
 }
 
-module.exports = { handleCovoitureurValidation, handleOffreValidation , loginAdmin }
+
+
+const getPendingCovoitureurs = async (req, res) => {
+  try {
+    const pendingCovoitureurs = await Covoitureur.find({ isValidated: false });
+    res.status(StatusCodes.OK).json({ pendingCovoitureurs });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des covoitureurs en attente :', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Erreur interne du serveur.' });
+  }
+}
+
+
+const getCovoitureursWithPaymentIssues = async (req, res) => {
+  try {
+    // Récupérer tous les covoitureurs avec isPaymentInsufficient = true
+    const covoitureurs = await Covoitureur.find({ isPaymentInsuffisant: true });
+
+    if (covoitureurs.length === 0) {
+      return res.status(StatusCodes.OK).json({ message: 'Aucun covoitureur avec un problème de paiement.' });
+    }
+
+    res.status(StatusCodes.OK).json({ covoitureurs });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des covoitureurs :', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Erreur interne du serveur' });
+  }
+};
+
+
+module.exports = { handleCovoitureurValidation, handleOffreValidation , loginAdmin ,getPendingCovoitureurs, getCovoitureursWithPaymentIssues}

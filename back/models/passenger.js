@@ -28,14 +28,13 @@ const passegershema = new mongoose.Schema({
           message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     },
     },
-    points: {
-       type: Number,
-        default: 0,
-    }, // Points accumulés
-    reservationsCount: {
-      type: Number, 
-      default: 0 ,
+    phoneNumber: {
+      type: String,
+      required: [true, 'Le numéro de téléphone est requis'],
+      match: [/^\d{8}$/, 'Le numéro de téléphone doit contenir 8 chiffres']
     },
+    
+    
 })
 passegershema.pre('save', async function () {
         const salt = await bcrypt.genSalt(10)

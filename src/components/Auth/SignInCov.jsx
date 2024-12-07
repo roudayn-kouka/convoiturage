@@ -82,6 +82,10 @@ const SignIn = () => {
         localStorage.setItem('email', response.data.covoitureur.email);
         localStorage.setItem('image', response.data.covoitureur.image);
         localStorage.setItem('ID', response.data.covoitureur.CovId);
+        localStorage.setItem('phone', response.data.covoitureur.phoneNumber);
+        localStorage.setItem('solde', response.data.covoitureur.solde);
+        localStorage.setItem('montantp', response.data.covoitureur.montant_payé);
+        
   
         console.log('Connexion réussie:', response.data);
   
