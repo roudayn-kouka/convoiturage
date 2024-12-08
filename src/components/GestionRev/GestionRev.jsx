@@ -277,7 +277,7 @@ function ReservationsList({ passenger }) {
                   </div>
                 </div>
                 <div className="mt-3 d-flex justify-content-between">
-                {trip.status === "En Attente" && (
+                {trip.status === "En attente" && (
                     <>
                       <button
                         className="btn btn-warning btn-sm"

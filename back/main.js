@@ -7,7 +7,7 @@ const auth_passenger=require('./routes/auth-passenger')
 const auth_covoitureur=require('./routes/auth-covoitureur')
 const reservation=require('./routes/reservations')
 const admin =require('./routes/admin')
-
+const loginroute=require('./routes/login')
 require('dotenv').config()
 
 const app = express()
@@ -21,6 +21,7 @@ app.use('/api/v1/auth_passenger' , auth_passenger)
 app.use('/api/v1/auth_covoitureur' , auth_covoitureur)
 app.use('/api/v1/reserver' ,reservation )
 app.use('/api/v1/admin',admin)
+app.use('/api/v1/login_auth',loginroute)
 
 const port= 3000
 const start = async() => {//start est une fonction asynchrone.

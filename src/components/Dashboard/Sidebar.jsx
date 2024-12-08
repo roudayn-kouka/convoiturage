@@ -41,7 +41,7 @@ const Sidebar = () => {
     if (role === 'passenger') {
       window.location.href = '/signin';
     } else if (role === 'driver') {
-      window.location.href = '/signincov';
+      window.location.href = '/signin';
     } 
     // Optionnel : Effacer les données de session/localStorage
     localStorage.clear();

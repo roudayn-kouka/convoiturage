@@ -57,23 +57,32 @@ const SignIn = () => {
   
     if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:3000/api/v1/auth_passenger/login', formData);
+        const response = await axios.post('http://localhost:3000/api/v1/login_auth/login', formData);
   
         // Store the JWT in localStorage
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('role', "passenger");
-        localStorage.setItem('name', response.data.passenger.name);
-        localStorage.setItem('email', response.data.passenger.email);
-        localStorage.setItem('ID', response.data.passenger.PasId);
-        localStorage.setItem('phone', response.data.passenger.phoneNumber);
-  
-        
+        localStorage.setItem('role',response.data.user.Role);
+        localStorage.setItem('name', response.data.user.name);
+        localStorage.setItem('email', response.data.user.email);
+        localStorage.setItem('ID', response.data.user.UserId);
+        localStorage.setItem('phone', response.data.user.phoneNumber);
+        localStorage.setItem('solde', response.data.user.solde);
+        localStorage.setItem('montantp', response.data.user.montant_payé);
+        localStorage.setItem('image', response.data.user.image);
         
   
         console.log('Connexion réussie:', response.data);
   
-        // Redirect to the dashboard
-        navigate('/dashboard');
+        if (response.data.user.Role === "driver"){
+          navigate('/dashboard/addtrajet');
+        }
+        else if(response.data.user.Role === "passenger"){
+          navigate('/dashboard/all-rides');
+        }
+        else{
+          navigate('/DashboardAdmin')
+        }
+        
       } catch (error) {
         console.error('Erreur lors de la connexion:', error.response?.data?.message || error.message);
         setErrors({ general: error.response?.data?.message || 'Une erreur est survenue.' });

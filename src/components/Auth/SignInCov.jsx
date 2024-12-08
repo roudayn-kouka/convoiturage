@@ -73,7 +73,7 @@ const SignIn = () => {
   
     if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:3000/api/v1/auth_covoitureur/login', formData);
+        const response = await axios.post('http://localhost:3000/api/v1/login_auth/login', formData);
   
         // Store the JWT in localStorage
         localStorage.setItem('token', response.data.token);

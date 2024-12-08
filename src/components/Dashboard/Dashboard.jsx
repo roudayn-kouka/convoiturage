@@ -30,6 +30,9 @@ const role = localStorage.getItem('role'); // Récupère le rôle depuis le stoc
     const montant_payé = localStorage.getItem('montantp')
 
     if (name && email) {
+      if(!name){
+        setPassenger({  email,Id,token });
+      }
       if(!image){
       setPassenger({ name, email,Id,token,phoneNumber });
       }

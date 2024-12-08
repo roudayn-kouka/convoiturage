@@ -33,8 +33,6 @@ const Navbar = () => {
       </div>
       <div className="nav-links">
         <Link to="/">Home</Link>
-        <Link to="#find-rides">Find Rides</Link>
-        <Link to="#offer-ride">Offer Ride</Link>
         <Link to="/AboutUs">About us</Link>
         
         {/* Sign Up Dropdown */}
@@ -56,11 +54,8 @@ const Navbar = () => {
           onMouseEnter={() => handleSignInHover(true)}
           onMouseLeave={() => handleSignInHover(false)}
         >
-          <button className="btn-login">Login</button>
-          <div className="custom-dropdown-menu">
-            <button onClick={() => handleNavigation('/signincov')}>Ride</button>
-            <button onClick={() => handleNavigation('/signin')}>Client</button>
-          </div>
+          <button className="btn-login" onClick={() => handleNavigation('/signin')}>Login</button>
+          
         </div>
       </div>
     </nav>

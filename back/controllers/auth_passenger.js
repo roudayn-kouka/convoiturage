@@ -1,90 +1,123 @@
 const Passenger = require('../models/passenger');
-const checkPasswordUsage = require('../utils/checkPasswordUsage');
+const checkEmailUsage = require('../utils/checkEmailUsage');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError, InternalServerError } = require('../errors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// const register = async (req, res) => {
+//   const {name, email,phoneNumber, password } = req.body;
+
+//   try {
+//     // Vérification si le mot de passe a déjà été utilisé
+//     const { isPasswordUsed, message } = await checkPasswordUsage(email, password);
+//     if (isPasswordUsed) {
+//       return res.status(StatusCodes.BAD_REQUEST).json({ message });
+//     }
+
+//     // Vérification si l'email est déjà utilisé
+//     const existingPassenger = await Passenger.findOne({ email });
+//     if (existingPassenger) {
+//       return res.status(StatusCodes.BAD_REQUEST).json( 'cet email est deja utilisé' );
+//     }
+
+//     // Création d'un nouveau passager
+//     const passenger = await Passenger.create({ ...req.body });
+
+//     // Création du JWT
+//     const token = passenger.createJWT();
+
+//     // Réponse avec le nom du passager et le token
+//     res.status(StatusCodes.CREATED).json({
+//       passenger: { name: passenger.name,email:passenger.email,phone:passenger.phoneNumber },
+//       token,
+//     });
+//   } catch (error) {
+//     // Gestion des erreurs internes
+//     if (error instanceof BadRequestError) {
+//       throw error;  // Si c'est une erreur déjà gérée, la relancer
+//     }
+//     console.error('Erreur lors de l\'inscription du passager :', error);
+//     return res.status(StatusCodes.BAD_REQUEST).json( `Erreur interne lors de l'inscription` );
+//   }
+// }
+
 const register = async (req, res) => {
-  const {name, email,phoneNumber, password } = req.body;
+  const { name, email, password, phoneNumber } = req.body;
 
   try {
-    // Vérification si le mot de passe a déjà été utilisé
-    const { isPasswordUsed, message } = await checkPasswordUsage(email, password);
-    if (isPasswordUsed) {
+    // Vérification si l'email est déjà utilisé
+    const { isEmailUsed, message } = await checkEmailUsage(email);
+    if (isEmailUsed) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message });
     }
 
-    // Vérification si l'email est déjà utilisé
-    const existingPassenger = await Passenger.findOne({ email });
-    if (existingPassenger) {
-      return res.status(StatusCodes.BAD_REQUEST).json( 'cet email est deja utilisé' );
-    }
-
     // Création d'un nouveau passager
-    const passenger = await Passenger.create({ ...req.body });
+    const passenger = await Passenger.create({ name, email, password, phoneNumber });
 
     // Création du JWT
     const token = passenger.createJWT();
 
     // Réponse avec le nom du passager et le token
     res.status(StatusCodes.CREATED).json({
-      passenger: { name: passenger.name,email:passenger.email,phone:passenger.phoneNumber },
+      passenger: { name: name },
       token,
     });
   } catch (error) {
     // Gestion des erreurs internes
     if (error instanceof BadRequestError) {
-      throw error;  // Si c'est une erreur déjà gérée, la relancer
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
     console.error('Erreur lors de l\'inscription du passager :', error);
-    return res.status(StatusCodes.BAD_REQUEST).json( `Erreur interne lors de l'inscription` );
-  }
-}
-
-
-
-
-
-
-const login = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    if (!email || !password) {
-      throw new BadRequestError('Please provide email and password');
-    }
-
-    // Recherche du passager dans la base de données
-    const passenger = await Passenger.findOne({ email });
-    if (!passenger) {
-      throw new UnauthenticatedError('Invalid Credentials');
-    }
-
-    // Vérification du mot de passe
-    const isPasswordCorrect = await passenger.comparePassword(password);
-    if (!isPasswordCorrect) {
-      throw new UnauthenticatedError('Invalid Credentials');
-    }
-
-    // Création du token JWT
-    const token = passenger.createJWT();
-
-    // Réponse avec les informations du passager et le token
-    res.status(StatusCodes.OK).json({
-      passenger: { name: passenger.name,email:passenger.email,PasId:passenger._id,phoneNumber:passenger.phoneNumber },
-      token,
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Erreur interne lors de l\'inscription.',
     });
-  } catch (error) {
-    // Gestion des erreurs spécifiques
-    if (error instanceof BadRequestError || error instanceof UnauthenticatedError) {
-      throw error;  // Relancer l'erreur spécifique
-    }
-    // Gestion des erreurs internes
-    console.error('Erreur lors de la connexion du passager :', error);
-    throw new InternalServerError('Erreur interne lors de la connexion.');
   }
 };
+
+
+
+
+
+
+// const login = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     if (!email || !password) {
+//       throw new BadRequestError('Please provide email and password');
+//     }
+
+//     // Recherche du passager dans la base de données
+//     const passenger = await Passenger.findOne({ email });
+//     if (!passenger) {
+//       throw new UnauthenticatedError('Invalid Credentials');
+//     }
+
+//     // Vérification du mot de passe
+//     const isPasswordCorrect = await passenger.comparePassword(password);
+//     if (!isPasswordCorrect) {
+//       throw new UnauthenticatedError('Invalid Credentials');
+//     }
+
+//     // Création du token JWT
+//     const token = passenger.createJWT();
+
+//     // Réponse avec les informations du passager et le token
+//     res.status(StatusCodes.OK).json({
+//       passenger: { name: passenger.name,email:passenger.email,PasId:passenger._id,phoneNumber:passenger.phoneNumber },
+//       token,
+//     });
+//   } catch (error) {
+//     // Gestion des erreurs spécifiques
+//     if (error instanceof BadRequestError || error instanceof UnauthenticatedError) {
+//       throw error;  // Relancer l'erreur spécifique
+//     }
+//     // Gestion des erreurs internes
+//     console.error('Erreur lors de la connexion du passager :', error);
+//     throw new InternalServerError('Erreur interne lors de la connexion.');
+//   }
+// };
 
 
 const updatepass = async (req, res) => {
@@ -140,6 +173,5 @@ const updatepass = async (req, res) => {
 
 module.exports = {
   register,
-  login,
   updatepass,
 }

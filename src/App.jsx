@@ -10,7 +10,7 @@ import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import AboutUs from './components/AboutUs/AboutUs';
 import Dashboard from './components/Dashboard/Dashboard';
-
+import DashboardAdmin from './pages/Dashboard/Dashboard'
 
 function App() {
   
@@ -28,6 +28,7 @@ function App() {
 
           <Route path="/AboutUs" element={<AboutUs />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route path="/DashboardAdmin" element={<DashboardAdmin />} />
 
           
         </Routes>
