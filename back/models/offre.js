@@ -100,6 +100,10 @@ const OffreSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    isValidated: {
+        type: Boolean,
+        default: true, // Compte non validé par défaut
+    },
 
 })
 module.exports = mongoose.model('Offre',OffreSchema); 

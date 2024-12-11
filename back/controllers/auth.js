@@ -45,11 +45,11 @@ const login = async (req, res) => {
       }
   
       // Pour les covoitureurs, vérifier si le compte est validé
-      if (role === 'driver' && !user.isValidated) {
-        return res.status(StatusCodes.FORBIDDEN).json({
-          message: 'Votre compte n\'a pas encore été validé par un administrateur.',
-        });
-      }
+      // if (role === 'driver' && !user.isValidated) {
+      //   return res.status(StatusCodes.FORBIDDEN).json({
+      //     message: 'Votre compte n\'a pas encore été validé par un administrateur.',
+      //   });
+      // }
   
       // Génération du JWT (token)
       const token = user.createJWT();

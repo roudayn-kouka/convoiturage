@@ -246,7 +246,7 @@ function ReservationsList({ passenger }) {
                   </div>
                 </div>
                 <div className="mt-3 d-flex justify-content-between">
-                {trip.status !== "Annulée" && (
+                {(trip.status !== "Annulée" || trip.status !=="Offre Annulé") && (
                     <>
                       <button
                         className="btn btn-warning btn-sm"

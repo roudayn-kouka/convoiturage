@@ -48,10 +48,10 @@ const covoitureurschema = new mongoose.Schema({
         type:Number,
         default:0,
     },
-    isValidated: {
-        type: Boolean,
-        default: false, // Compte non validé par défaut
-    },
+    // isValidated: {
+    //     type: Boolean,
+    //     default: false, // Compte non validé par défaut
+    // },
     commission_plateforme:{
         type:Number,
         default:0,

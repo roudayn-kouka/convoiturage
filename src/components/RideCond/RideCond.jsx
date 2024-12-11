@@ -149,19 +149,46 @@ export default function RideCond({passenger}) {
                   </div>
                 </div>
                 <div className="mt-3 text-end">
-                  <button
-                    className="btn btn-success px-4 me-2"
-                    onClick={() => handleModify(offer._id)}
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    className="btn btn-danger px-4"
-                    onClick={() => handleCancelClick(offer._id)}
-                  >
-                    Annuler
-                  </button>
-                </div>
+  {(() => {
+    const now = new Date();
+    const currentDateISO = now.toISOString(); // Current date and time in ISO format
+    const currentDateOnly = now.toISOString().split("T")[0]; // Current date (YYYY-MM-DD)
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); // Current time in minutes
+
+    // Extract and calculate offer time in minutes
+    const offerDateOnly = offer.dateDepart.split("T")[0]; // Extract date part from ISO string
+    const [offerHour, offerMinute] = offer.heureDepart.split(":").map(Number); // Extract hours and minutes
+    const offerTimeInMinutes = offerHour * 60 + offerMinute; // Calculate offer time in minutes
+
+    // Check if the offer is in the past
+    const isPast =
+      (offerDateOnly > currentDateOnly) || // Offer date is before today
+      (offerDateOnly === currentDateOnly && offerTimeInMinutes > currentTimeInMinutes); // Offer is today but earlier than current time
+
+    return isPast ? (
+      <>
+        <button
+          className="btn btn-success px-4 me-2"
+          onClick={() => handleModify(offer._id)}
+        >
+          Modifier
+        </button>
+        <button
+          className="btn btn-danger px-4"
+          onClick={() => handleCancelClick(offer._id)}
+        >
+          Annuler
+        </button>
+      </>
+    ) : null;
+  })()}
+</div>
+
+
+
+
+
+
               </div>
             </div>
           </div>

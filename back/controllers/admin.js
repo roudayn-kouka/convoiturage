@@ -95,6 +95,28 @@ const handleOffreValidation = async (req, res) => {
     covoitureur.isPaymentInsuffisant = false
     covoitureur.commission_plateforme = 0
     await covoitureur.save();
+    // Envoi d'un email de confirmation d'acceptation avec un lien de connexion
+    const subject = 'Validation de votre demande de création d\'offre';
+    const text = `
+      Bonjour ${covoitureur.name},
+
+      Félicitations ! Votre demande de création d'offre a été acceptée avec succès.  
+      Le montant de ${montantPaye} a bien été ajouté à votre compte.  
+
+      Vous pouvez maintenant vous connecter pour publier vos offres en cliquant sur le lien suivant :  
+      https://votre-application.com/api/v1/auth_covoitureur/login
+
+      Nous vous souhaitons une excellente expérience avec notre service.
+
+      Cordialement,  
+      L'équipe de support.
+    `;
+    try {
+      await sendEmail(covoitureur.email, subject, text);
+      console.log('Email d\'acceptation envoyé à', covoitureur.email);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email :', error);
+    }
     return res.status(StatusCodes.OK).json({ message: 'Montant mis à jour et demande acceptée' });
   }
 

@@ -20,7 +20,7 @@ const reservationshema =new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['En attente', 'Confirmée','Rejetée','Annulée','Effectuée'],
+        enum: ['En attente', 'Confirmée','Rejetée','Annulée','Effectuée','Offre Annulé'],
         default: 'En attente',
     },
     createdAt: {

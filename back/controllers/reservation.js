@@ -215,6 +215,7 @@ const deleteReservation = async (req, res) => { //supression par l'admin
 const updateReservation = async (req, res) => {
   const { id } = req.params;
   const { numbreplacereservée } = req.body;
+  console.log(numbreplacereservée)
 
   const reservation = await Reservation.findById(id);
   if (!reservation) {
@@ -225,7 +226,17 @@ const updateReservation = async (req, res) => {
   if (!offer) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'Offre introuvable.' });
   }
-
+console.log("reservation numbreplacereseervée",reservation.numbreplacereservée)
+  // Si le statut de la réservation est 'confirmée', annuler la réservation précédente
+  if (reservation.status === 'Confirmée') {
+    const nb = offer.nombreplacerestant + reservation.numbreplacereservée
+    offer.nombreplacerestant = nb 
+    reservation.status = 'En attente';
+  }
+  await offer.save()
+  
+  
+  console.log(offer.nombreplacerestant)
   // Vérifier que le nombre de places demandées ne dépasse pas les places restantes
   if (numbreplacereservée > offer.nombreplacerestant) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -233,16 +244,15 @@ const updateReservation = async (req, res) => {
     });
   }
 
-  // Calculer le changement du nombre de places réservées
-  const placesDifference = numbreplacereservée - reservation.numbreplacereservée;
+  
+  
 
-  // Mise à jour du nombre de places réservées
+  // Mettre à jour le nombre de places réservées dans la réservation
   reservation.numbreplacereservée = numbreplacereservée;
   await reservation.save();
 
-  // Mise à jour du nombre de places restantes dans l'offre
-  offer.nombreplacerestant -= placesDifference; // Ajuste les places restantes en fonction de la différence
-  await offer.save();
+  
+
 
   // Envoi d'un email au covoitureur
   const driver = await Covoitureur.findById(offer.createdBy);

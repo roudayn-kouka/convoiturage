@@ -5,13 +5,14 @@ const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, NotFoundError, InternalServerError } = require('../errors');
 const sendEmail = require('../services/emailService');
 require('dotenv').config()
+const Reservation = require('../models/reservation')
 
 
 
 const getAllOffresco = async (req, res) => {
   try {
     // Récupérer toutes les offres créées par le covoitureur connecté
-    const offres = await Offre.find({ createdBy: req.user.userId });
+    const offres = await Offre.find({ createdBy: req.user.userId , isValidated:true });
 
     // Retourner les résultats
     res.status(StatusCodes.OK).json({message: 'Offres récupérées avec succès.', offres, count: offres.length });
@@ -52,6 +53,7 @@ const getAllOffres = async (req, res) => {
       },
       {
         $match: {
+          isValidated: true,
           $or: [
             // Case 1: Today's offers where heureDepart > current time
             {
@@ -70,12 +72,13 @@ const getAllOffres = async (req, res) => {
     // Enrich each offer with Covoitureur details
     const offresWithCovoitureur = await Promise.all(
       offres.map(async (offre) => {
-        const covoitureur = await Covoitureur.findById(offre.createdBy, "name image");
+          const covoitureur = await Covoitureur.findById(offre.createdBy, "name image");
         return {
           ...offre,
           covoitureur, // Attach covoitureur details
         };
-      })
+        }
+      )
     );
 
     // Return the results
@@ -299,7 +302,14 @@ const deleteOffre = async (req, res) => {
   try {
     const { id: OffreID }=req.params;
 
-    const offre = await Offre.findByIdAndDelete({ _id: OffreID, createdBy: req.user.userId });
+    const offre = await Offre.findOne({ _id: OffreID, createdBy: req.user.userId });
+    offre.isValidated=false
+    offre.save()
+    const reservations = await Reservation.find({ offre: { $in: OffreID } });
+    reservations.map(async (reservation) => {
+      reservation.status="Offre Annulé"
+      await reservation.save()
+    })
 
     if (!offre) {
       return res.status(404).json({ message: "Offer not found" });

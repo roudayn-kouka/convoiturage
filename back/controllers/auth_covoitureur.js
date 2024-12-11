@@ -78,7 +78,7 @@ const register = async (req, res) => {
     console.log('Création du covoitureur...');
 
     // Créer un nouveau covoitureur
-    const covoitureur = await Covoitureur.create({ ...req.body, isValidated: false });
+    const covoitureur = await Covoitureur.create({ ...req.body });            //, isValidated: false
     console.log('Covoitureur créé avec succès', covoitureur);
 
     // Envoi de l'email à l'administrateur
@@ -101,7 +101,7 @@ const register = async (req, res) => {
 
     // Réponse à l'utilisateur
     res.status(StatusCodes.CREATED).json({
-      message: 'Inscription réussie. Votre compte doit être validé par un administrateur avant de pouvoir vous connecter.',
+      message: 'Inscription réussie.',
     });
 
   } catch (error) {
